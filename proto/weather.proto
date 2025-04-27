@@ -1,4 +1,5 @@
 // Weather proto file 
+
 syntax = "proto3";
 
 package weather;
@@ -15,4 +16,7 @@ message WeatherResponse {
   float temperature = 1;
   float humidity = 2;
   float rainfall = 3;
+  string condition = 4;
+  string alert = 5;
+  string reportTime = 6;
 }
