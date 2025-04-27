@@ -19,4 +19,5 @@ message WeatherResponse {
   string condition = 4;
   string alert = 5;
   string reportTime = 6;
+  float windspeed = 7;
 }

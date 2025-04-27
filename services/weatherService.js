@@ -16,12 +16,14 @@ function GetWeather(call, callback) {
     // List of possible weather conditions
     const conditions = ["Sunny", "Cloudy", "Rainy", "Stormy"];
     const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    const windspeed = parseFloat((Math.random() * 20).toFixed(1));
 
     // Build the weather response
     const weatherData = {
         temperature: variation(baseData.temperature),
         humidity: variation(baseData.humidity),
         rainfall: variation(baseData.rainfall),
+        windspeed: windspeed,
         condition: randomCondition,
         reportTime: new Date().toISOString() // Current time in ISO format
     };

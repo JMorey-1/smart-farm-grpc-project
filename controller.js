@@ -22,6 +22,7 @@ client.GetWeather({ location: 'Farm' }, (error, response) => {
         console.log(`Temperature: ${response.temperature.toFixed(1)} °C`);
         console.log(`Humidity: ${response.humidity.toFixed(1)} %`);
         console.log(`Rainfall: ${response.rainfall.toFixed(1)} mm`);
+        console.log(`Windspeed: ${response.windspeed.toFixed(1)} km/h`);
         console.log(`Condition: ${response.condition}`);
 
         // Only display alert if it's not empty
