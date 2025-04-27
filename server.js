@@ -1,15 +1,45 @@
 const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+const path = require('path');
+const weatherService = require('./services/weatherService');
 
+
+// Load the proto files
+const weatherProtoPath = path.join(__dirname, 'proto', 'weather.proto');
+const irrigationProtoPath = path.join(__dirname, 'proto', 'irrigation.proto');
+const robotProtoPath = path.join(__dirname, 'proto', 'robot.proto');
+
+const weatherPackageDef = protoLoader.loadSync(weatherProtoPath, {});
+const irrigationPackageDef = protoLoader.loadSync(irrigationProtoPath, {});
+const robotPackageDef = protoLoader.loadSync(robotProtoPath, {});
+
+const weatherProto = grpc.loadPackageDefinition(weatherPackageDef).weather;
+const irrigationProto = grpc.loadPackageDefinition(irrigationPackageDef).irrigation;
+const robotProto = grpc.loadPackageDefinition(robotPackageDef).robot;
+
+
+// Create the gRPC server
 const server = new grpc.Server();
 
+
+// Register services (currently empty)
+server.addService(weatherProto.WeatherService.service, weatherService);
+server.addService(irrigationProto.IrrigationService.service, {});
+server.addService(robotProto.RobotService.service, {});
+
+
+// Server address
 const address = '0.0.0.0:50051';
 
-server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (error, port) => {
+
+// Bind and start the server
+server.bindAsync(address, grpc.ServerCredentials.createInsecure(), function(error, port) {
   
-    if (error) {
-        console.error('Server binding failed: ' + error);
-        return;
-      }
-      console.log('gRPC Server is running at ' + address);
+  if (error) {
+    console.error('Server binding failed: ' + error);
+    return;
+  }
+
+  console.log('gRPC Server is running at ' + address);
 
 });
