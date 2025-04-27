@@ -1,1 +1,19 @@
 // Robot proto file 
+syntax = "proto3";
+
+package robot;
+
+service RobotService {
+  rpc GetRobotStatus (RobotStatusRequest) returns (RobotStatusResponse);
+}
+
+message RobotStatusRequest {
+  string robotId = 1;
+}
+
+message RobotStatusResponse {
+  string position = 1;
+  string task = 2;
+  int32 loadPercentage = 3;
+  int32 batteryLevel = 4;
+}

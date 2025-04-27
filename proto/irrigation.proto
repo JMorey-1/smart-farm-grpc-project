@@ -1,1 +1,16 @@
 // Irrigation proto file 
+syntax = "proto3";
+
+package irrigation;
+
+service IrrigationService {
+  rpc GetSoilMoisture (SoilRequest) returns (SoilResponse);
+}
+
+message SoilRequest {
+  string fieldZone = 1;
+}
+
+message SoilResponse {
+  float moistureLevel = 1;
+}
