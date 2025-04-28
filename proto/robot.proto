@@ -4,16 +4,18 @@ syntax = "proto3";
 package robot;
 
 service RobotService {
-  rpc GetRobotStatus (RobotStatusRequest) returns (RobotStatusResponse);
+  rpc StreamRobotStatus (RobotStatusRequest) returns (stream RobotStatusResponse);
 }
 
 message RobotStatusRequest {
-  string robotId = 1;
+  string robotId = 1; // Optional: specify which robot
 }
 
 message RobotStatusResponse {
-  string position = 1;
-  string task = 2;
-  int32 loadPercentage = 3;
-  int32 batteryLevel = 4;
+  string robotId = 1;
+  string position = 2;
+  string currentTask = 3;
+  float containerLoadPercent = 4;
+  float batteryLevelPercent = 5;
+  string timestamp = 6;
 }

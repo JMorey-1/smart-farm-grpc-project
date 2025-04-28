@@ -12,6 +12,11 @@ const irrigationProtoPath = path.join(__dirname, 'proto', 'irrigation.proto');
 const irrigationPackageDef = protoLoader.loadSync(irrigationProtoPath, {});
 const irrigationProto = grpc.loadPackageDefinition(irrigationPackageDef).irrigation;
 
+// Load RobotService proto
+const robotProtoPath = path.join(__dirname, 'proto', 'robot.proto');
+const robotPackageDef = protoLoader.loadSync(robotProtoPath, {});
+const robotProto = grpc.loadPackageDefinition(robotPackageDef).robot;
+
 // Create WeatherService client
 const weatherClient = new weatherProto.WeatherService(
     'localhost:50051',
@@ -24,7 +29,13 @@ const irrigationClient = new irrigationProto.IrrigationService(
     grpc.credentials.createInsecure()
 );
 
-// ------------------ Testing Weather Service ------------------ //
+// Create RobotService client
+const robotClient = new robotProto.RobotService(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+);
+
+// ------------------ Weather Service ------------------ //
 
 function getWeather() {
     weatherClient.GetWeather({ location: 'Farm' }, (error, response) => {
@@ -41,14 +52,14 @@ function getWeather() {
                 console.log(`ALERT: ${response.alert}`);
             }
             const reportDate = new Date(response.reportTime);
-            const formattedDate = `${reportDate.getDate().toString().padStart(2, '0')}/${(reportDate.getMonth()+1).toString().padStart(2, '0')}/${reportDate.getFullYear()} ${reportDate.getHours().toString().padStart(2, '0')}:${reportDate.getMinutes().toString().padStart(2, '0')}`;
+            const formattedDate = `${reportDate.getDate().toString().padStart(2, '0')}/${(reportDate.getMonth() + 1).toString().padStart(2, '0')}/${reportDate.getFullYear()} ${reportDate.getHours().toString().padStart(2, '0')}:${reportDate.getMinutes().toString().padStart(2, '0')}`;
             console.log(`Report Time: ${formattedDate}`);
             console.log('-----------------------\n');
         }
     });
 }
 
-// ------------------ Testing Irrigation Service ------------------ //
+// ------------------ Irrigation Service ------------------ //
 
 function getSoilMoisture(greenhouseId) {
     irrigationClient.GetSoilMoisture({ greenhouseId }, (error, response) => {
@@ -90,6 +101,31 @@ function getWaterUsage(greenhouseId) {
     });
 }
 
+// ------------------ Robot Service ------------------ //
+
+function streamRobotStatus(robotId) {
+    const call = robotClient.StreamRobotStatus({ robotId });
+
+    call.on('data', (response) => {
+        console.log('--- Robot Status Update ---');
+        console.log(`Robot ID: ${response.robotId}`);
+        console.log(`Position: ${response.position}`);
+        console.log(`Current Task: ${response.currentTask}`);
+        console.log(`Container Load: ${response.containerLoadPercent.toFixed(1)} %`);
+        console.log(`Battery Level: ${response.batteryLevelPercent.toFixed(1)} %`);
+        console.log(`Timestamp: ${new Date(response.timestamp).toLocaleString()}`);
+        console.log('----------------------------\n');
+    });
+
+    call.on('end', () => {
+        console.log('Robot status stream ended.');
+    });
+
+    call.on('error', (error) => {
+        console.error('StreamRobotStatus error:', error);
+    });
+}
+
 // ------------------ Example Calls ------------------ //
 
 // Test Weather
@@ -100,3 +136,6 @@ getSoilMoisture('Greenhouse 1');
 startIrrigation('Greenhouse 1');
 stopIrrigation('Greenhouse 1');
 getWaterUsage('Greenhouse 1');
+
+// Test Robot Streaming
+streamRobotStatus('Robot1');
