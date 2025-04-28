@@ -4,13 +4,24 @@ syntax = "proto3";
 package irrigation;
 
 service IrrigationService {
-  rpc GetSoilMoisture (SoilRequest) returns (SoilResponse);
+  rpc GetSoilMoisture (IrrigationRequest) returns (SoilMoistureResponse);
+  rpc StartIrrigation (IrrigationRequest) returns (IrrigationResponse);
+  rpc StopIrrigation (IrrigationRequest) returns (IrrigationResponse);
+  rpc GetWaterUsage (IrrigationRequest) returns (WaterUsageResponse);
 }
 
-message SoilRequest {
-  string fieldZone = 1;
+message IrrigationRequest {
+  string greenhouseId = 1;
 }
 
-message SoilResponse {
+message SoilMoistureResponse {
   float moistureLevel = 1;
+}
+
+message IrrigationResponse {
+  string status = 1; // e.g., "Started", "Already Running", "Stopped"
+}
+
+message WaterUsageResponse {
+  float litresUsed = 1;
 }

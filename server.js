@@ -24,7 +24,8 @@ const server = new grpc.Server();
 
 // Register services (currently empty)
 server.addService(weatherProto.WeatherService.service, weatherService);
-server.addService(irrigationProto.IrrigationService.service, {});
+const irrigationService = require('./services/irrigationService');
+server.addService(irrigationProto.IrrigationService.service, irrigationService);
 server.addService(robotProto.RobotService.service, {});
 
 
