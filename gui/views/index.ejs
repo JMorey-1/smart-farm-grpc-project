@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Farm Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <h1>Smart Farm Monitoring Dashboard</h1>
+
+    <section>
+        <h2>Weather</h2>
+        <% if (weatherData) { %>
+            <p>Temperature: <%= weatherData.temperature.toFixed(1) %> °C</p>
+            <p>Humidity: <%= weatherData.humidity.toFixed(1) %> %</p>
+            <p>Rainfall: <%= weatherData.rainfall.toFixed(1) %> mm</p>
+            <p>Condition: <%= weatherData.condition %></p>
+            <p>Windspeed: <%= weatherData.windspeed.toFixed(1) %> km/h</p>
+            <% if (weatherData.alert && weatherData.alert.trim() !== '') { %>
+                <p><strong>ALERT:</strong> <%= weatherData.alert %></p>
+            <% } %>
+        <% } else { %>
+            <p>No weather data available.</p>
+        <% } %>
+    </section>
+
+    <section>
+        <h2>Irrigation</h2>
+        <% if (soilMoistureData.length > 0) { %>
+            <table border="1" cellpadding="10" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Greenhouse</th>
+                        <th>Soil Moisture (%)</th>
+                        <th>Irrigation Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% soilMoistureData.forEach(greenhouse => { %>
+                        <tr>
+                            <td><%= greenhouse.name %></td>
+                            <td><%= greenhouse.soilMoisture.toFixed(1) %></td>
+                            <td><%= greenhouse.isIrrigating ? "Running" : "Stopped" %></td>
+                            <td>
+                                <form method="POST" action="/start-irrigation">
+                                    <input type="hidden" name="greenhouseId" value="<%= greenhouse.greenhouseId %>">
+                                    <button type="submit">Start Irrigation</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No greenhouse data available.</p>
+        <% } %>
+    </section>
+
+    <section>
+        <h2>Robot Status</h2>
+        <p>(Live streaming robot updates coming soon!)</p>
+    </section>
+
+</body>
+</html>

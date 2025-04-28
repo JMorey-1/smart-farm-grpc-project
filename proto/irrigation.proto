@@ -1,16 +1,34 @@
 // Irrigation proto file 
+
 syntax = "proto3";
 
 package irrigation;
 
 service IrrigationService {
-  rpc GetSoilMoisture (IrrigationRequest) returns (SoilMoistureResponse);
-  rpc StartIrrigation (IrrigationRequest) returns (IrrigationResponse);
-  rpc StopIrrigation (IrrigationRequest) returns (IrrigationResponse);
-  rpc GetWaterUsage (IrrigationRequest) returns (WaterUsageResponse);
+  // Get soil moisture for a single greenhouse
+  rpc GetSoilMoisture (GreenhouseRequest) returns (SoilMoistureResponse);
+
+  // Get soil moisture for ALL greenhouses
+  rpc GetAllSoilMoisture (Empty) returns (AllSoilMoistureResponse);
+
+  // Start irrigation for a single greenhouse
+  rpc StartIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
+
+  // Stop irrigation for a single greenhouse
+  rpc StopIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
+
+  // Get water usage for a single greenhouse
+  rpc GetWaterUsage (GreenhouseRequest) returns (WaterUsageResponse);
+
+  // Client Streaming: Activate irrigation for multiple greenhouses
+  rpc ActivateIrrigation (stream GreenhouseRequest) returns (ActivateIrrigationResponse);
 }
 
-message IrrigationRequest {
+// Messages
+
+message Empty {}
+
+message GreenhouseRequest {
   string greenhouseId = 1;
 }
 
@@ -18,10 +36,26 @@ message SoilMoistureResponse {
   float moistureLevel = 1;
 }
 
-message IrrigationResponse {
-  string status = 1; // e.g., "Started", "Already Running", "Stopped"
+message IrrigationStatusResponse {
+  string status = 1;
 }
 
 message WaterUsageResponse {
   float litresUsed = 1;
+}
+
+message AllSoilMoistureResponse {
+  repeated GreenhouseStatus greenhouses = 1;
+}
+
+message GreenhouseStatus {
+  string greenhouseId = 1;
+  string name = 2;
+  float soilMoisture = 3;
+  bool isIrrigating = 4;
+}
+
+message ActivateIrrigationResponse {
+  repeated string activatedGreenhouses = 1;
+  float totalWaterProjected = 2;
 }
