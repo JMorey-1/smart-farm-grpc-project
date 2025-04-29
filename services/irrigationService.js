@@ -1,4 +1,4 @@
-// Irrigation service logic 
+// services/irrigationService.js
 
 // Simulated Greenhouse Data
 const greenhouses = {
@@ -7,6 +7,17 @@ const greenhouses = {
     "Greenhouse 3": { name: "Herb Garden", moistureLevel: 55.0, litresUsed: 80.0, isIrrigating: false }
 };
 
+// Moisture simulation: every 5 seconds, update irrigating greenhouses
+setInterval(() => {
+    Object.keys(greenhouses).forEach(id => {
+        const greenhouse = greenhouses[id];
+        if (greenhouse.isIrrigating) {
+            greenhouse.moistureLevel = Math.min(100, greenhouse.moistureLevel + (Math.random() * 1.5 + 0.5)); // Add 0.5% to 2.0%
+            greenhouse.litresUsed += Math.random() * 5 + 2; // Random 2–7 litres used
+        }
+    });
+}, 5000);
+
 // Get soil moisture for a single greenhouse
 function GetSoilMoisture(call, callback) {
     const { greenhouseId } = call.request;
@@ -14,7 +25,7 @@ function GetSoilMoisture(call, callback) {
 
     if (!greenhouse) {
         return callback({
-            code: 5, // NOT_FOUND
+            code: 5,
             message: `Greenhouse ${greenhouseId} not found`
         });
     }
@@ -51,6 +62,7 @@ function StartIrrigation(call, callback) {
     }
 
     greenhouse.isIrrigating = true;
+
     callback(null, { status: `Irrigation started for ${greenhouse.name}` });
 }
 
@@ -71,6 +83,7 @@ function StopIrrigation(call, callback) {
     }
 
     greenhouse.isIrrigating = false;
+
     callback(null, { status: `Irrigation stopped for ${greenhouse.name}` });
 }
 
@@ -102,7 +115,7 @@ function ActivateIrrigation(call, callback) {
             if (!greenhouse.isIrrigating) {
                 greenhouse.isIrrigating = true;
                 activated.push(greenhouseId);
-                totalWaterProjected += 20.0; // Assume 20 litres projected per irrigation
+                totalWaterProjected += 20.0;
             }
         }
     });

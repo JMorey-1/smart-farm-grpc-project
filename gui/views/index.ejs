@@ -1,33 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Smart Farm Dashboard</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h2 { margin-top: 40px; }
+        button { padding: 5px 10px; margin-right: 5px; }
+    </style>
 </head>
 <body>
-    <h1>Smart Farm Monitoring Dashboard</h1>
+    <h1>Smart Farm Dashboard</h1>
 
+    <!-- Weather Section -->
     <section>
-        <h2>Weather</h2>
+        <h2>Weather Report</h2>
         <% if (weatherData) { %>
-            <p>Temperature: <%= weatherData.temperature.toFixed(1) %> °C</p>
-            <p>Humidity: <%= weatherData.humidity.toFixed(1) %> %</p>
-            <p>Rainfall: <%= weatherData.rainfall.toFixed(1) %> mm</p>
-            <p>Condition: <%= weatherData.condition %></p>
-            <p>Windspeed: <%= weatherData.windspeed.toFixed(1) %> km/h</p>
-            <% if (weatherData.alert && weatherData.alert.trim() !== '') { %>
-                <p><strong>ALERT:</strong> <%= weatherData.alert %></p>
-            <% } %>
+            <table>
+                <tr><th>Temperature</th><td><%= weatherData.temperature.toFixed(1) %> °C</td></tr>
+                <tr><th>Humidity</th><td><%= weatherData.humidity.toFixed(1) %> %</td></tr>
+                <tr><th>Rainfall</th><td><%= weatherData.rainfall.toFixed(1) %> mm</td></tr>
+                <tr><th>Windspeed</th><td><%= weatherData.windspeed.toFixed(1) %> km/h</td></tr>
+                <tr><th>Condition</th><td><%= weatherData.condition %></td></tr>
+                <% if (weatherData.alert) { %>
+                    <tr><th>Alert</th><td style="color: red;"><%= weatherData.alert %></td></tr>
+                <% } %>
+                <tr><th>Report Time</th><td><%= weatherData.reportTimeFormatted %></td></tr>
+            </table>
         <% } else { %>
-            <p>No weather data available.</p>
+            <p>No weather data available</p>
         <% } %>
     </section>
 
+    <!-- Irrigation Section -->
     <section>
         <h2>Irrigation</h2>
         <% if (soilMoistureData.length > 0) { %>
-            <table border="1" cellpadding="10" cellspacing="0">
+            <table>
                 <thead>
                     <tr>
                         <th>Greenhouse</th>
@@ -36,31 +47,76 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="irrigation-table-body">
                     <% soilMoistureData.forEach(greenhouse => { %>
                         <tr>
                             <td><%= greenhouse.name %></td>
                             <td><%= greenhouse.soilMoisture.toFixed(1) %></td>
                             <td><%= greenhouse.isIrrigating ? "Running" : "Stopped" %></td>
                             <td>
-                                <form method="POST" action="/start-irrigation">
-                                    <input type="hidden" name="greenhouseId" value="<%= greenhouse.greenhouseId %>">
-                                    <button type="submit">Start Irrigation</button>
-                                </form>
+                                <button onclick="startIrrigation('<%= greenhouse.greenhouseId %>')">Start</button>
+                                <button onclick="stopIrrigation('<%= greenhouse.greenhouseId %>')">Stop</button>
                             </td>
                         </tr>
                     <% }) %>
                 </tbody>
             </table>
         <% } else { %>
-            <p>No greenhouse data available.</p>
+            <p>No irrigation data available</p>
         <% } %>
     </section>
 
-    <section>
-        <h2>Robot Status</h2>
-        <p>(Live streaming robot updates coming soon!)</p>
-    </section>
+    <!-- Script for live irrigation updates -->
+    <script>
+        function fetchIrrigationStatus() {
+            fetch('/irrigation-status')
+                .then(response => response.json())
+                .then(greenhouses => {
+                    const tbody = document.querySelector('#irrigation-table-body');
+                    tbody.innerHTML = '';
 
+                    greenhouses.forEach(g => {
+                        const row = `
+                            <tr>
+                                <td>${g.name}</td>
+                                <td>${g.soilMoisture.toFixed(1)}</td>
+                                <td>${g.isIrrigating ? "Running" : "Stopped"}</td>
+                                <td>
+                                    <button onclick="startIrrigation('${g.greenhouseId}')">Start</button>
+                                    <button onclick="stopIrrigation('${g.greenhouseId}')">Stop</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                })
+                .catch(err => console.error('Failed to fetch irrigation status:', err));
+        }
+
+        function startIrrigation(greenhouseId) {
+            fetch('/start-irrigation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
+            })
+            .then(response => response.text())
+            .then(() => fetchIrrigationStatus())
+            .catch(err => console.error('Failed to start irrigation:', err));
+        }
+
+        function stopIrrigation(greenhouseId) {
+            fetch('/stop-irrigation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
+            })
+            .then(response => response.text())
+            .then(() => fetchIrrigationStatus())
+            .catch(err => console.error('Failed to stop irrigation:', err));
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(fetchIrrigationStatus, 5000);
+    </script>
 </body>
 </html>

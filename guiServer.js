@@ -15,6 +15,9 @@ app.set('views', path.join(__dirname, 'gui', 'views'));
 // Serve static files (CSS, JS)
 app.use(express.static(path.join(__dirname, 'gui', 'public')));
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+
 // ------------- Load gRPC Clients ------------- //
 
 // WeatherService
@@ -60,8 +63,7 @@ app.get('/', (req, res) => {
     });
 });
 
-const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: false }));
+
 
 app.post('/start-irrigation', (req, res) => {
     const { greenhouseId } = req.body;
@@ -69,10 +71,37 @@ app.post('/start-irrigation', (req, res) => {
     irrigationClient.StartIrrigation({ greenhouseId }, (error, response) => {
         if (error) {
             console.error('Error starting irrigation:', error);
-        } else {
-            console.log(`Irrigation started for ${greenhouseId}: ${response.status}`);
+            return res.status(500).send("Failed to start irrigation");
         }
-        res.redirect('/');
+
+        console.log(`Irrigation started for ${greenhouseId}: ${response.status}`);
+        res.send(response.status);
+    });
+});
+
+
+app.post('/stop-irrigation', (req, res) => {
+    const { greenhouseId } = req.body;
+
+    irrigationClient.StopIrrigation({ greenhouseId }, (error, response) => {
+        if (error) {
+            console.error('Error stopping irrigation:', error);
+            return res.status(500).send("Failed to stop irrigation");
+        }
+
+        console.log(`Irrigation stopped for ${greenhouseId}: ${response.status}`);
+        res.send(response.status);
+    });
+});
+
+
+app.get('/irrigation-status', (req, res) => {
+    irrigationClient.GetAllSoilMoisture({}, (error, soilResponse) => {
+        if (error) {
+            console.error('Error fetching irrigation status:', error);
+            return res.status(500).json({ error: "Unable to fetch irrigation data" });
+        }
+        res.json(soilResponse.greenhouses);
     });
 });
 

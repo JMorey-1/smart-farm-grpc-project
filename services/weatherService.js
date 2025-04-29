@@ -5,7 +5,7 @@ function GetWeather(call, callback) {
     
     // Base weather data
     const baseData = {
-        temperature: 21.0,
+        temperature: 11.0,
         humidity: 55.0,
         rainfall: 4.6
     };
