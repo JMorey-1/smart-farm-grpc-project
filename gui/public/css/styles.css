@@ -1,74 +1,369 @@
+/* === Base Styles === */
+:root {
+    --primary-color: #2c974b;
+    --primary-hover: #38b45a;
+    --primary-light: #e3f2e6;
+    --secondary-color: #0b4f71;
+    --bg-dark: #11151a;
+    --bg-card: #1a1f25;
+    --bg-light: #232a32;
+    --text-light: #f0f0f0;
+    --text-muted: #a0a8b0;
+    --border-color: #2c3642;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --info: #3498db;
+    --success: #2ecc71;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --transition: all 0.3s ease;
+}
+
 body {
-        font-family: 'Segoe UI', sans-serif;
-        margin: 40px;
-        background-color: #f8f9fa;
-        color: #333;
-    }
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+}
 
-    h1 {
-        text-align: center;
-        margin-bottom: 40px;
-    }
+/* === Layout === */
+.dashboard-header {
+    text-align: center;
+    background-color: var(--bg-card);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
 
-    section {
-        margin-bottom: 50px;
-    }
+.dashboard-header h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--text-light);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+}
 
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        margin-bottom: 20px;
-        background-color: #fff;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
+.dashboard-header h1::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+}
 
-    th, td {
-        border: 1px solid #ddd;
-        padding: 12px 15px;
-        text-align: left;
-    }
+main.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1.5rem 2rem;
+    max-width: 1440px;
+    margin: 0 auto;
+}
 
-    th {
-        background-color: #007BFF;
-        color: white;
-    }
+.dashboard-footer {
+    text-align: right;
+    padding: 1rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-color);
+}
 
-    tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
+/* === Card Styling === */
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
 
-    button {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        background-color: #28a745;
-        color: white;
-        cursor: pointer;
-    }
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
 
-    button:hover {
-        background-color: #218838;
-    }
+.card h2, .card h3 {
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 1.25rem;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+    letter-spacing: 0.3px;
+}
 
-    button + button {
-        background-color: #dc3545;
-    }
+/* === Weather Card === */
+.weather-card .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    padding: 1.25rem;
+}
 
-    button + button:hover {
-        background-color: #c82333;
-    }
+.weather-grid div {
+    background-color: var(--bg-light);
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+}
 
-    h2 {
-        color: #0056b3;
-        margin-bottom: 15px;
-    }
+.weather-grid div strong {
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-    h3 {
-        margin-bottom: 10px;
-        color: #343a40;
-    }
+.alert-box {
+    grid-column: 1 / -1 !important;
+    background-color: rgba(231, 76, 60, 0.15) !important;
+    color: #ff9a91 !important;
+    padding: 1rem !important;
+    border-left: 4px solid var(--danger) !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+}
 
-    #irrigation-table-body td,
-    .robot-table td {
-        font-size: 0.95em;
+.alert-box::before {
+    content: "⚠️";
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+/* === Table Styles === */
+.data-table,
+.robot-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.data-table th,
+.robot-table th {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-weight: 500;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.data-table td,
+.robot-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.data-table tbody tr:hover,
+.robot-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* === Irrigation Card === */
+.irrigation-card {
+    overflow: hidden;
+}
+
+.irrigation-card table {
+    margin: 0;
+}
+
+/* === Badge Styles === */
+.status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #fff;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.running {
+    background-color: var(--success);
+}
+
+.status-badge.stopped {
+    background-color: var(--danger);
+}
+
+/* === Robot Cards === */
+.robot-cards-container {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.robot-card h3 {
+    display: flex;
+    align-items: center;
+}
+
+
+.robot-table {
+    margin: 0.75rem 0;
+}
+
+.robot-table th {
+    width: 100px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.robot-table td {
+    font-weight: 500;
+    color: var(--text-light);
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.robot-buttons {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: var(--bg-light);
+}
+
+/* === Buttons === */
+button {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    flex: 1;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.robot-buttons button:nth-child(1) {
+    color: var(--warning);
+    border-color: var(--warning);
+}
+
+.robot-buttons button:nth-child(2) {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.robot-buttons button:nth-child(3) {
+    color: var(--info);
+    border-color: var(--info);
+}
+
+.irrigation-card button:nth-child(1) {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.irrigation-card button:nth-child(2) {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+/* === Task Color Hints === */
+.task-cell[data-task*="Paused"] {
+    color: var(--warning) !important;
+}
+.task-cell[data-task*="Charging"] {
+    color: var(--info) !important;
+}
+.task-cell[data-task*="Picking"] {
+    color: var(--success) !important;
+}
+.task-cell[data-task*="Returning"] {
+    color: #9b59b6 !important;
+}
+.task-cell[data-task*="Idle"] {
+    color: var(--text-muted) !important;
+}
+.task-cell[data-task*="Moving"] {
+    color: #1abc9c !important;
+}
+
+/* === Battery Indicator === */
+td[id$="-battery"] {
+    position: relative;
+}
+
+/* === Responsive Adjustments === */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 0;
     }
+    
+    main.dashboard-grid {
+        padding: 0 1rem 1.5rem;
+        gap: 1rem;
+    }
+    
+    .dashboard-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .weather-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* === Enhancement for widgets === */
+.weather-card h2::before {
+    margin-right: 0.5rem;
+}
+
+.irrigation-card h2::before {
+    margin-right: 0.5rem;
+}
+
+/* === Additional enhancements === */
+.card {
+    position: relative;
+    overflow: visible;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 3px 3px 0 0;
+}

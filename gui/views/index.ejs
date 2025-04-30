@@ -1,147 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Farm Dashboard</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 40px;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        section {
-            margin-bottom: 50px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px 15px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        button + button {
-            background-color: #dc3545;
-        }
-
-        button + button:hover {
-            background-color: #c82333;
-        }
-
-        h2 {
-            color: #0056b3;
-            margin-bottom: 15px;
-        }
-
-        h3 {
-            margin-bottom: 10px;
-            color: #343a40;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Add Font Awesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>Smart Farm Dashboard</h1>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Smart Farm Dashboard</h1>
+        </header>
 
-    <!-- Weather Section -->
-    <section>
-        <h2>Weather Report</h2>
-        <% if (weatherData) { %>
-            <table>
-                <tr><th>Temperature</th><td><%= weatherData.temperature.toFixed(1) %> °C</td></tr>
-                <tr><th>Humidity</th><td><%= weatherData.humidity.toFixed(1) %> %</td></tr>
-                <tr><th>Rainfall</th><td><%= weatherData.rainfall.toFixed(1) %> mm</td></tr>
-                <tr><th>Windspeed</th><td><%= weatherData.windspeed.toFixed(1) %> km/h</td></tr>
-                <tr><th>Condition</th><td><%= weatherData.condition %></td></tr>
-                <% if (weatherData.alert) { %>
-                    <tr><th>Alert</th><td style="color: red;"><%= weatherData.alert %></td></tr>
-                <% } %>
-                <tr><th>Report Time</th><td><%= weatherData.reportTimeFormatted %></td></tr>
-            </table>
-        <% } else { %>
-            <p>No weather data available</p>
-        <% } %>
-    </section>
+        <main class="dashboard-grid">
+            <!-- Weather Card - Improved layout -->
+            <section class="card weather-card">
+                <div class="card-header">
+                    <h2>Weather Conditions</h2>
+                </div>
+                <div class="card-body">
+                    <% if (weatherData) { %>
+                        <div class="weather-grid">
+                            <div class="weather-item">
+                                <i class="fas fa-temperature-high"></i>
+                                <span class="weather-label">Temperature</span>
+                                <span class="weather-value"><%= weatherData.temperature.toFixed(1) %> °C</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-tint"></i>
+                                <span class="weather-label">Humidity</span>
+                                <span class="weather-value"><%= weatherData.humidity.toFixed(1) %> %</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-cloud-rain"></i>
+                                <span class="weather-label">Rainfall</span>
+                                <span class="weather-value"><%= weatherData.rainfall.toFixed(1) %> mm</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-wind"></i>
+                                <span class="weather-label">Windspeed</span>
+                                <span class="weather-value"><%= weatherData.windspeed.toFixed(1) %> km/h</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-cloud"></i>
+                                <span class="weather-label">Condition</span>
+                                <span class="weather-value"><%= weatherData.condition %></span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-clock"></i>
+                                <span class="weather-label">Updated</span>
+                                <span class="weather-value"><%= weatherData.reportTimeFormatted %></span>
+                            </div>
+                        </div>
+                        <% if (weatherData.alert) { %>
+                            <div class="alert-box">
+                                <i class="fas fa-exclamation-triangle alert-icon"></i>
+                                <span><%= weatherData.alert %></span>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="no-data-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>No weather data available</p>
+                        </div>
+                    <% } %>
+                </div>
+            </section>
 
-    <!-- Irrigation Section -->
-    <section>
-        <h2>Irrigation</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Greenhouse</th>
-                    <th>Soil Moisture (%)</th>
-                    <th>Irrigation Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="irrigation-table-body">
-                <!-- Filled by SSE stream -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Robot Section -->
-    <section>
-        <h2>Robot Status</h2>
-        <div style="display: flex; gap: 30px;">
-            <% ["Robot1", "Robot2", "Robot3"].forEach(robotId => { %>
-                <div>
-                    <h3><%= robotId %></h3>
-                    <table>
-                        <tr><th>Position</th><td id="<%= robotId %>-position">Loading...</td></tr>
-                        <tr><th>Task</th><td id="<%= robotId %>-task">Loading...</td></tr>
-                        <tr><th>Container</th><td id="<%= robotId %>-load">Loading...</td></tr>
-                        <tr><th>Battery</th><td id="<%= robotId %>-battery">Loading...</td></tr>
-                        <tr><th>Last Updated</th><td id="<%= robotId %>-timestamp">Loading...</td></tr>
-                    </table>
-                    <div>
-                        <button onclick="sendRobotCommand('<%= robotId %>', 'Pause')">Pause</button>
-                        <button onclick="sendRobotCommand('<%= robotId %>', 'Resume')">Resume</button>
-                        <button onclick="sendRobotCommand('<%= robotId %>', 'Return')">Return</button>
+            <!-- Irrigation Card - Improved structure -->
+            <section class="card irrigation-card">
+                <div class="card-header">
+                    <h2>Irrigation System</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-home"></i> Greenhouse</th>
+                                    <th><i class="fas fa-water"></i> Soil Moisture</th>
+                                    <th><i class="fas fa-info-circle"></i> Status</th>
+                                    <th><i class="fas fa-cogs"></i> Controls</th>
+                                </tr>
+                            </thead>
+                            <tbody id="irrigation-table-body">
+                                <!-- Populated by JS -->
+                                <tr class="placeholder-row">
+                                    <td colspan="4">
+                                        <div class="loading-indicator">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <span>Loading irrigation data...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            <% }); %>
-        </div>
-    </section>
+            </section>
 
+            <!-- Robot Section - Improved layout -->
+            <section class="card robots-card">
+                <div class="card-header">
+                    <h2>Farming Robots</h2>
+                </div>
+                <div class="card-body">
+                    <div class="robot-cards-container">
+                        <% ["Robot1", "Robot2", "Robot3"].forEach((robotId, index) => { %>
+                            <div class="robot-item">
+                                <div class="robot-header">
+                                    <h3><%= robotId %></h3>
+                                    <span class="robot-status" id="<%= robotId %>-status-indicator"></span>
+                                </div>
+                                <div class="robot-details">
+                                    <div class="robot-info-grid">
+                                        <div class="robot-info-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span class="info-label">Location:</span>
+                                            <span class="info-value" id="<%= robotId %>-position">Loading...</span>
+                                        </div>
+                                        <div class="robot-info-item">
+                                            <i class="fas fa-tasks"></i>
+                                            <span class="info-label">Task:</span>
+                                            <span class="info-value task-cell" id="<%= robotId %>-task" data-task="">Loading...</span>
+                                        </div>
+                                        <div class="robot-info-item">
+                                            <i class="fas fa-box"></i>
+                                            <span class="info-label">Container:</span>
+                                            <span class="info-value" id="<%= robotId %>-load">Loading...</span>
+                                        </div>
+                                        <div class="robot-info-item">
+                                            <i class="fas fa-battery-half"></i>
+                                            <span class="info-label">Battery:</span>
+                                            <div class="battery-indicator">
+                                                <div class="battery-level" id="<%= robotId %>-battery-level"></div>
+                                                <span id="<%= robotId %>-battery">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="robot-info-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span class="info-label">Updated:</span>
+                                            <span class="info-value" id="<%= robotId %>-timestamp">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="robot-buttons" id="<%= robotId %>-buttons">
+                                    <button class="btn-start" id="<%= robotId %>-start-btn" onclick="sendRobotCommand('<%= robotId %>', 'Start')" style="display: none;">
+                                        <i class="fas fa-play-circle"></i> Start
+                                    </button>
+                                
+                                    <button class="btn-pause" id="<%= robotId %>-pause-btn" onclick="sendRobotCommand('<%= robotId %>', 'Pause')" style="display: none;">
+                                        <i class="fas fa-pause"></i> Pause
+                                    </button>
+                                
+                                    <button class="btn-resume" id="<%= robotId %>-resume-btn" onclick="sendRobotCommand('<%= robotId %>', 'Resume')" style="display: none;">
+                                        <i class="fas fa-play"></i> Resume
+                                    </button>
+                                
+                                    <button class="btn-return" id="<%= robotId %>-return-btn" onclick="sendRobotCommand('<%= robotId %>', 'Return')" style="display: none;">
+                                        <i class="fas fa-home"></i> Return
+                                    </button>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="dashboard-footer">
+            <p>Smart Farm Dashboard © <%= new Date().getFullYear() %> | System Status: <span id="system-status" class="status-online">Online</span></p>
+        </footer>
+    </div>
+
+    <!-- Modified JavaScript with improved UI interaction -->
     <script>
-        // -- Irrigation Streaming --
+        // --- Irrigation Stream ---
         const irrigationData = {};
         const irrigationEventSource = new EventSource('/soil-moisture-stream');
 
@@ -149,77 +185,218 @@
             const data = JSON.parse(event.data);
             irrigationData[data.greenhouseId] = data;
             renderIrrigationTable();
-        };
-
-        irrigationEventSource.onerror = (err) => {
-            console.error('Irrigation stream error:', err);
-            irrigationEventSource.close();
+            
+            // Remove placeholder after first data received
+            document.querySelector('.placeholder-row')?.remove();
         };
 
         function renderIrrigationTable() {
             const tbody = document.getElementById('irrigation-table-body');
-            tbody.innerHTML = '';
-
+            if (Object.keys(irrigationData).length === 0) return; // Don't clear if no data
+            
+            // Clear existing content except placeholder
+            Array.from(tbody.querySelectorAll('tr:not(.placeholder-row)')).forEach(row => row.remove());
+            
             Object.values(irrigationData).forEach(g => {
-                const row = `
-                    <tr>
-                        <td>${g.name}</td>
-                        <td>${g.soilMoisture.toFixed(1)}</td>
-                        <td>${g.isIrrigating ? "Running" : "Stopped"}</td>
-                        <td>
-                            <button onclick="startIrrigation('${g.greenhouseId}')">Start</button>
-                            <button onclick="stopIrrigation('${g.greenhouseId}')">Stop</button>
-                        </td>
-                    </tr>
+                const moistureClass = g.soilMoisture < 30 ? 'low-moisture' : 
+                                     g.soilMoisture > 70 ? 'high-moisture' : 'normal-moisture';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="greenhouse-name">
+                            <i class="fas fa-seedling"></i>
+                            <span>${g.name}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="moisture-indicator ${moistureClass}">
+                            <div class="moisture-bar" style="width: ${g.soilMoisture}%"></div>
+                            <span>${g.soilMoisture.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${g.isIrrigating ? 'running' : 'stopped'}">
+                            <i class="fas fa-${g.isIrrigating ? 'play-circle' : 'stop-circle'}"></i>
+                            ${g.isIrrigating ? 'Running' : 'Stopped'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="button-group">
+                            <button class="btn-start" onclick="startIrrigation('${g.greenhouseId}')" ${g.isIrrigating ? 'disabled' : ''}>
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                            <button class="btn-stop" onclick="stopIrrigation('${g.greenhouseId}')" ${!g.isIrrigating ? 'disabled' : ''}>
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                        </div>
+                    </td>
                 `;
-                tbody.innerHTML += row;
+                tbody.appendChild(row);
             });
         }
 
-        function startIrrigation(greenhouseId) {
+        function startIrrigation(id) {
             fetch('/start-irrigation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
-            }).catch(err => console.error('Failed to start irrigation:', err));
+                body: `greenhouseId=${encodeURIComponent(id)}`
+            });
+            
+            // Optimistic UI update
+            if (irrigationData[id]) {
+                irrigationData[id].isIrrigating = true;
+                renderIrrigationTable();
+            }
         }
 
-        function stopIrrigation(greenhouseId) {
+        function stopIrrigation(id) {
             fetch('/stop-irrigation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
-            }).catch(err => console.error('Failed to stop irrigation:', err));
+                body: `greenhouseId=${encodeURIComponent(id)}`
+            });
+            
+            // Optimistic UI update
+            if (irrigationData[id]) {
+                irrigationData[id].isIrrigating = false;
+                renderIrrigationTable();
+            }
         }
 
-        // -- Robot Streaming & Command Control --
+        // --- Robot Stream ---
         function startRobotStream(robotId) {
             const eventSource = new EventSource(`/robot-control-stream?robotId=${robotId}`);
 
-            eventSource.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                document.getElementById(`${robotId}-position`).textContent = data.position;
-                document.getElementById(`${robotId}-task`).textContent = data.currentTask;
-                document.getElementById(`${robotId}-load`).textContent = data.containerLoadPercent.toFixed(1) + "%";
-                document.getElementById(`${robotId}-battery`).textContent = data.batteryLevelPercent.toFixed(1) + "%";
-                document.getElementById(`${robotId}-timestamp`).textContent = new Date(data.timestamp).toLocaleTimeString();
-            };
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
 
-            eventSource.onerror = (err) => {
-                console.error(`Error in ${robotId} stream:`, err);
-                eventSource.close();
-            };
+            document.getElementById(`${robotId}-position`).textContent = data.position;
+            document.getElementById(`${robotId}-task`).textContent = data.currentTask;
+            document.getElementById(`${robotId}-task`).setAttribute("data-task", data.currentTask);
+            document.getElementById(`${robotId}-load`).textContent = data.containerLoadPercent.toFixed(1) + "%";
+            document.getElementById(`${robotId}-battery`).textContent = data.batteryLevelPercent.toFixed(1) + "%";
+            document.getElementById(`${robotId}-timestamp`).textContent = new Date(data.timestamp).toLocaleTimeString();
+
+            // Battery bar
+            const batteryLevel = document.getElementById(`${robotId}-battery-level`);
+            batteryLevel.style.width = data.batteryLevelPercent + "%";
+            batteryLevel.className = "battery-level";
+            if (data.batteryLevelPercent < 20) {
+                batteryLevel.classList.add("critical");
+            } else if (data.batteryLevelPercent < 50) {
+                batteryLevel.classList.add("warning");
+            } else {
+                batteryLevel.classList.add("normal");
+            }
+
+            // Robot status indicator
+            const statusIndicator = document.getElementById(`${robotId}-status-indicator`);
+            const task = data.currentTask;
+
+            if (task.includes("Paused")) {
+                statusIndicator.className = "robot-status status-paused";
+                statusIndicator.title = "Paused";
+            } else if (task.includes("Charging")) {
+                statusIndicator.className = "robot-status status-charging";
+                statusIndicator.title = "Charging";
+            } else if (task.includes("Idle")) {
+                statusIndicator.className = "robot-status status-idle";
+                statusIndicator.title = "Idle";
+            } else if (task.includes("Waiting")) {
+                statusIndicator.className = "robot-status status-idle";
+                statusIndicator.title = "Waiting for Start";
+            } else {
+                statusIndicator.className = "robot-status status-active";
+                statusIndicator.title = "Active";
+            }
+
+            // ----- Button Visibility Logic -----
+            const startBtn = document.getElementById(`${robotId}-start-btn`);
+            const pauseBtn = document.getElementById(`${robotId}-pause-btn`);
+            const resumeBtn = document.getElementById(`${robotId}-resume-btn`);
+            const returnBtn = document.getElementById(`${robotId}-return-btn`);
+
+            [startBtn, pauseBtn, resumeBtn, returnBtn].forEach(btn => {
+                if (btn) btn.style.display = "none";
+            });
+
+            if (task === "Waiting") {
+                startBtn.style.display = "inline-block";
+            } else if (task === "Paused") {
+                resumeBtn.style.display = "inline-block";
+            } else if (["Picking", "Moving", "Idle"].some(state => task.includes(state))) {
+                pauseBtn.style.display = "inline-block";
+                returnBtn.style.display = "inline-block";
+            }
+        };
+
+        eventSource.onerror = (err) => {
+            console.error(`${robotId} stream error:`, err);
+            const statusIndicator = document.getElementById(`${robotId}-status-indicator`);
+            statusIndicator.className = "robot-status status-error";
+            eventSource.close();
+
+            // Retry connection after 5s
+            setTimeout(() => startRobotStream(robotId), 5000);
+        };
+    }
+
+    // Start streams
+    ["Robot1", "Robot2", "Robot3"].forEach(startRobotStream);
+        
+
+    function sendRobotCommand(robotId, command) {
+    fetch('/send-robot-command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            robotId: robotId, 
+            command: command.toLowerCase() // Convert to lowercase here
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+    })
+    .catch(error => {
+        console.error('Error sending command:', error);
+    })
+    .finally(() => {
+        const buttons = document.querySelectorAll(`button[onclick*="${robotId}"]`);
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+        });
+    });
+}
+        
 
-        function sendRobotCommand(robotId, command) {
-            fetch('/send-robot-command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ robotId, command })
-            }).catch(err => console.error('Command failed:', err));
+        
+        // System status check
+        function checkSystemStatus() {
+            fetch('/system-status')
+                .then(response => {
+                    const statusElement = document.getElementById('system-status');
+                    if (response.ok) {
+                        statusElement.className = 'status-online';
+                        statusElement.textContent = 'Online';
+                    } else {
+                        statusElement.className = 'status-offline';
+                        statusElement.textContent = 'Offline';
+                    }
+                })
+                .catch(() => {
+                    const statusElement = document.getElementById('system-status');
+                    statusElement.className = 'status-offline';
+                    statusElement.textContent = 'Offline';
+                });
         }
-
-        ["Robot1", "Robot2", "Robot3"].forEach(startRobotStream);
+        
+        // Check status every 30 seconds
+        setInterval(checkSystemStatus, 30000);
+        checkSystemStatus();
     </script>
 </body>
 </html>
