@@ -12,13 +12,13 @@ setInterval(() => {
     Object.keys(greenhouses).forEach(id => {
         const greenhouse = greenhouses[id];
         if (greenhouse.isIrrigating) {
-            greenhouse.moistureLevel = Math.min(100, greenhouse.moistureLevel + (Math.random() * 1.5 + 0.5)); // Add 0.5% to 2.0%
-            greenhouse.litresUsed += Math.random() * 5 + 2; // Random 2–7 litres used
+            greenhouse.moistureLevel = Math.min(100, greenhouse.moistureLevel + (Math.random() * 1.5 + 0.5)); // +0.5 to +2.0%
+            greenhouse.litresUsed += Math.random() * 5 + 2; // +2 to +7 litres
         }
     });
 }, 5000);
 
-// Get soil moisture for a single greenhouse
+// Unary: Get soil moisture for a single greenhouse
 function GetSoilMoisture(call, callback) {
     const { greenhouseId } = call.request;
     const greenhouse = greenhouses[greenhouseId];
@@ -33,7 +33,7 @@ function GetSoilMoisture(call, callback) {
     callback(null, { moistureLevel: greenhouse.moistureLevel });
 }
 
-// Get soil moisture for ALL greenhouses
+// Unary: Get soil moisture for ALL greenhouses
 function GetAllSoilMoisture(call, callback) {
     const allStatuses = Object.keys(greenhouses).map(id => ({
         greenhouseId: id,
@@ -45,7 +45,29 @@ function GetAllSoilMoisture(call, callback) {
     callback(null, { greenhouses: allStatuses });
 }
 
-// Start irrigation for a single greenhouse
+// 🔁 Server Streaming: Stream live soil moisture data
+function StreamSoilMoisture(call) {
+    const interval = setInterval(() => {
+        Object.entries(greenhouses).forEach(([id, g]) => {
+            const status = {
+                greenhouseId: id,
+                name: g.name,
+                soilMoisture: parseFloat(g.moistureLevel.toFixed(1)),
+                isIrrigating: g.isIrrigating,
+                timestamp: new Date().toISOString()
+            };
+            call.write(status);
+        });
+    }, 5000); // Stream every 5 seconds
+
+    call.on('cancelled', () => clearInterval(interval));
+    call.on('end', () => {
+        clearInterval(interval);
+        call.end();
+    });
+}
+
+// Unary: Start irrigation
 function StartIrrigation(call, callback) {
     const { greenhouseId } = call.request;
     const greenhouse = greenhouses[greenhouseId];
@@ -66,7 +88,7 @@ function StartIrrigation(call, callback) {
     callback(null, { status: `Irrigation started for ${greenhouse.name}` });
 }
 
-// Stop irrigation for a single greenhouse
+// Unary: Stop irrigation
 function StopIrrigation(call, callback) {
     const { greenhouseId } = call.request;
     const greenhouse = greenhouses[greenhouseId];
@@ -87,7 +109,7 @@ function StopIrrigation(call, callback) {
     callback(null, { status: `Irrigation stopped for ${greenhouse.name}` });
 }
 
-// Get total water usage for a greenhouse
+// Unary: Get water usage
 function GetWaterUsage(call, callback) {
     const { greenhouseId } = call.request;
     const greenhouse = greenhouses[greenhouseId];
@@ -102,7 +124,7 @@ function GetWaterUsage(call, callback) {
     callback(null, { litresUsed: greenhouse.litresUsed });
 }
 
-// Activate Irrigation for multiple greenhouses (Client Streaming)
+// Client Streaming: Activate irrigation for multiple greenhouses
 function ActivateIrrigation(call, callback) {
     let activated = [];
     let totalWaterProjected = 0;
@@ -111,28 +133,28 @@ function ActivateIrrigation(call, callback) {
         const { greenhouseId } = command;
         const greenhouse = greenhouses[greenhouseId];
 
-        if (greenhouse) {
-            if (!greenhouse.isIrrigating) {
-                greenhouse.isIrrigating = true;
-                activated.push(greenhouseId);
-                totalWaterProjected += 20.0;
-            }
+        if (greenhouse && !greenhouse.isIrrigating) {
+            greenhouse.isIrrigating = true;
+            activated.push(greenhouseId);
+            totalWaterProjected += 20.0;
         }
     });
 
     call.on('end', () => {
         callback(null, {
             activatedGreenhouses: activated,
-            totalWaterProjected: totalWaterProjected
+            totalWaterProjected
         });
     });
 }
 
+// Export all handlers
 module.exports = {
     GetSoilMoisture,
     GetAllSoilMoisture,
     StartIrrigation,
     StopIrrigation,
     GetWaterUsage,
-    ActivateIrrigation
+    ActivateIrrigation,
+    StreamSoilMoisture
 };

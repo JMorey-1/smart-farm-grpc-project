@@ -1,70 +1,181 @@
 // Robot service logic 
 
+const taskSequence = ["Idle", "Moving", "Picking", "Returning", "Charging"];
+const greenhouses = ["Greenhouse 1", "Greenhouse 2", "Greenhouse 3"];
+
+function createInitialRobotState(id) {
+    return {
+        robotId: id,
+        position: "Charging Station",
+        currentTask: "Idle",
+        containerLoad: 0.0,
+        batteryLevel: 100.0,
+        taskIndex: 0,
+        targetGreenhouse: pickRandomGreenhouse()
+    };
+}
+
+function pickRandomGreenhouse() {
+    return greenhouses[Math.floor(Math.random() * greenhouses.length)];
+}
+
+const robotStates = {
+    "Robot1": createInitialRobotState("Robot1"),
+    "Robot2": createInitialRobotState("Robot2"),
+    "Robot3": createInitialRobotState("Robot3")
+};
+
 function StreamRobotStatus(call) {
     const { robotId } = call.request;
 
-    // Simulated robots (could expand later if you want)
-    const robots = {
-        "Robot1": { position: "Greenhouse 1", currentTask: "Picking", containerLoad: 25.0, batteryLevel: 90.0 },
-        "Robot2": { position: "Greenhouse 2", currentTask: "Transporting", containerLoad: 40.0, batteryLevel: 85.0 }
-    };
-
-    // Choose the requested robot, or default to Robot1
-    const selectedRobotId = robotId || "Robot1";
-    let robot = robots[selectedRobotId];
-
-    if (!robot) {
+    if (!robotStates[robotId]) {
         call.emit('error', {
-            code: 5, // NOT_FOUND
-            message: `Robot ${selectedRobotId} not found`
+            code: 5,
+            message: `Robot ${robotId} not found`
         });
         return;
     }
 
-    console.log(`Streaming status for ${selectedRobotId}...`);
+    const robot = robotStates[robotId];
 
-    // Helper to randomly adjust values
-    function randomVariation(value, minChange, maxChange, minLimit, maxLimit) {
-        const variation = (Math.random() * (maxChange - minChange)) + minChange;
-        let newValue = value + variation;
-        return Math.min(maxLimit, Math.max(minLimit, parseFloat(newValue.toFixed(1))));
-    }
-
-    const positions = ["Greenhouse 1", "Greenhouse 2", "Warehouse", "Charging Station"];
-    const tasks = ["Picking", "Transporting", "Idle", "Charging"];
+    console.log(`Streaming realistic status for ${robotId}...`);
 
     const interval = setInterval(() => {
-        // Simulate random movement and status changes
-        robot.position = positions[Math.floor(Math.random() * positions.length)];
-        robot.currentTask = tasks[Math.floor(Math.random() * tasks.length)];
-        robot.containerLoad = randomVariation(robot.containerLoad, -5, 10, 0, 100);
-        robot.batteryLevel = randomVariation(robot.batteryLevel, -2, -0.5, 0, 100);
+        robot.currentTask = taskSequence[robot.taskIndex];
+
+        switch (robot.currentTask) {
+            case "Idle":
+                robot.position = "Charging Station";
+                robot.batteryLevel = Math.max(0, robot.batteryLevel - 0.1);
+                break;
+
+            case "Moving":
+                robot.position = robot.targetGreenhouse;
+                robot.batteryLevel = Math.max(0, robot.batteryLevel - (Math.random() * 0.5 + 0.3));
+                break;
+
+            case "Picking":
+                robot.containerLoad = Math.min(100, robot.containerLoad + (Math.random() * 4 + 1));
+                robot.batteryLevel = Math.max(0, robot.batteryLevel - (Math.random() * 0.5 + 0.4));
+                break;
+
+            case "Returning":
+                robot.position = "Warehouse";
+                robot.batteryLevel = Math.max(0, robot.batteryLevel - (Math.random() * 0.5 + 0.3));
+                break;
+
+            case "Charging":
+                robot.position = "Charging Station";
+                robot.batteryLevel = Math.min(100, robot.batteryLevel + (Math.random() * 3 + 2));
+
+                if (robot.batteryLevel >= 100) {
+                    robot.containerLoad = 0;
+                    robot.targetGreenhouse = pickRandomGreenhouse();
+                    robot.taskIndex = -1; // so next is 0 (Idle)
+                }
+                break;
+        }
 
         const update = {
-            robotId: selectedRobotId,
+            robotId: robot.robotId,
             position: robot.position,
             currentTask: robot.currentTask,
-            containerLoadPercent: robot.containerLoad,
-            batteryLevelPercent: robot.batteryLevel,
+            containerLoadPercent: parseFloat(robot.containerLoad.toFixed(1)),
+            batteryLevelPercent: parseFloat(robot.batteryLevel.toFixed(1)),
             timestamp: new Date().toISOString()
         };
 
         call.write(update);
-    }, 3000); // every 3 seconds
 
-    // Handle client cancelling the stream
+        robot.taskIndex = (robot.taskIndex + 1) % taskSequence.length;
+
+    }, 10000);
+
     call.on('cancelled', () => {
-        console.log(`Client cancelled robot streaming for ${selectedRobotId}`);
+        console.log(`Client cancelled robot streaming for ${robotId}`);
         clearInterval(interval);
     });
 
     call.on('end', () => {
-        console.log(`Client ended robot streaming for ${selectedRobotId}`);
+        console.log(`Client ended robot streaming for ${robotId}`);
         clearInterval(interval);
         call.end();
     });
 }
 
+function RobotCommandStream(call) {
+    // Keep active robot states per client stream
+    const robotStates = {}; 
+
+    call.on('data', (command) => {
+        const { robotId, command: cmd } = command;
+
+        if (!robotStates[robotId]) {
+            robotStates[robotId] = createInitialRobotState(robotId);
+        }
+
+        const robot = robotStates[robotId];
+        robot.lastCommand = cmd;
+        console.log(`[${robotId}] Received command: ${cmd}`);
+    });
+
+    const interval = setInterval(() => {
+        Object.values(robotStates).forEach(robot => {
+            // Apply behavior based on last command
+            switch (robot.lastCommand) {
+                case 'Pause':
+                    robot.currentTask = 'Paused';
+                    break;
+
+                case 'Return':
+                    robot.position = 'Warehouse';
+                    robot.currentTask = 'Returning';
+                    robot.containerLoad = 0;
+                    break;
+
+                case 'Resume':
+                    robot.currentTask = taskSequence[robot.taskIndex];
+                    robot.taskIndex = (robot.taskIndex + 1) % taskSequence.length;
+                    break;
+
+                default:
+                    // Continue auto behavior if no command or Resume
+                    robot.currentTask = taskSequence[robot.taskIndex];
+                    robot.taskIndex = (robot.taskIndex + 1) % taskSequence.length;
+            }
+
+            // Simulate battery + movement
+            if (robot.currentTask !== 'Charging') {
+                robot.batteryLevel = Math.max(0, robot.batteryLevel - (Math.random() * 0.5 + 0.2));
+            } else {
+                robot.batteryLevel = Math.min(100, robot.batteryLevel + (Math.random() * 2 + 1));
+            }
+
+            const update = {
+                robotId: robot.robotId,
+                position: robot.position,
+                currentTask: robot.currentTask,
+                containerLoadPercent: parseFloat(robot.containerLoad.toFixed(1)),
+                batteryLevelPercent: parseFloat(robot.batteryLevel.toFixed(1)),
+                timestamp: new Date().toISOString()
+            };
+
+            call.write(update);
+        });
+    }, 8000);
+
+    call.on('end', () => {
+        clearInterval(interval);
+        call.end();
+    });
+
+    call.on('error', (err) => {
+        console.error('Robot command stream error:', err);
+        clearInterval(interval);
+    });
+}
+
 module.exports = {
-    StreamRobotStatus
+    StreamRobotStatus,
+    RobotCommandStream
 };

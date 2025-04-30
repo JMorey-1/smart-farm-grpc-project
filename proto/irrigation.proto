@@ -1,27 +1,17 @@
-// Irrigation proto file 
-
 syntax = "proto3";
 
 package irrigation;
 
 service IrrigationService {
-  // Get soil moisture for a single greenhouse
   rpc GetSoilMoisture (GreenhouseRequest) returns (SoilMoistureResponse);
-
-  // Get soil moisture for ALL greenhouses
   rpc GetAllSoilMoisture (Empty) returns (AllSoilMoistureResponse);
-
-  // Start irrigation for a single greenhouse
   rpc StartIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
-
-  // Stop irrigation for a single greenhouse
   rpc StopIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
-
-  // Get water usage for a single greenhouse
   rpc GetWaterUsage (GreenhouseRequest) returns (WaterUsageResponse);
-
-  // Client Streaming: Activate irrigation for multiple greenhouses
   rpc ActivateIrrigation (stream GreenhouseRequest) returns (ActivateIrrigationResponse);
+
+  // Stream soil moisture updates continuously
+  rpc StreamSoilMoisture (Empty) returns (stream GreenhouseStatus);
 }
 
 // Messages
@@ -48,11 +38,13 @@ message AllSoilMoistureResponse {
   repeated GreenhouseStatus greenhouses = 1;
 }
 
+// Real-time GUI updates
 message GreenhouseStatus {
   string greenhouseId = 1;
   string name = 2;
   float soilMoisture = 3;
   bool isIrrigating = 4;
+  string timestamp = 5; 
 }
 
 message ActivateIrrigationResponse {

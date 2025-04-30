@@ -1,46 +1,41 @@
-// guiServer.js
-
 const express = require('express');
 const path = require('path');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 3000;
 
-// Set EJS as the view engine
+// View engine and static files
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'gui', 'views'));
-
-// Serve static files (CSS, JS)
 app.use(express.static(path.join(__dirname, 'gui', 'public')));
-
-const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json()); // For JSON POST
 
-// ------------- Load gRPC Clients ------------- //
-
-// WeatherService
+// ----- gRPC Clients -----
 const weatherProtoPath = path.join(__dirname, 'proto', 'weather.proto');
 const weatherPackageDef = protoLoader.loadSync(weatherProtoPath, {});
 const weatherProto = grpc.loadPackageDefinition(weatherPackageDef).weather;
 const weatherClient = new weatherProto.WeatherService('localhost:50051', grpc.credentials.createInsecure());
 
-// IrrigationService
 const irrigationProtoPath = path.join(__dirname, 'proto', 'irrigation.proto');
 const irrigationPackageDef = protoLoader.loadSync(irrigationProtoPath, {});
 const irrigationProto = grpc.loadPackageDefinition(irrigationPackageDef).irrigation;
 const irrigationClient = new irrigationProto.IrrigationService('localhost:50051', grpc.credentials.createInsecure());
 
-// RobotService
 const robotProtoPath = path.join(__dirname, 'proto', 'robot.proto');
 const robotPackageDef = protoLoader.loadSync(robotProtoPath, {});
 const robotProto = grpc.loadPackageDefinition(robotPackageDef).robot;
 const robotClient = new robotProto.RobotService('localhost:50051', grpc.credentials.createInsecure());
 
-// ------------- Routes ------------- //
+// Active robot streams (for commands)
+const activeRobotStreams = {};
 
-// Home/Dashboard Route
+// ----- Routes -----
+
+// Homepage
 app.get('/', (req, res) => {
     weatherClient.GetWeather({ location: 'Farm' }, (weatherError, weatherResponse) => {
         if (weatherError) {
@@ -55,16 +50,18 @@ app.get('/', (req, res) => {
             }
 
             res.render('index', {
-                weatherData: weatherResponse,
+                weatherData: weatherResponse ? {
+                    ...weatherResponse,
+                    reportTimeFormatted: new Date(weatherResponse.reportTime).toLocaleString()
+                } : null,
                 soilMoistureData: soilResponse ? soilResponse.greenhouses : [],
-                robotData: [] // Placeholder for now
+                robotData: [] // handled live via streaming
             });
         });
     });
 });
 
-
-
+// Start irrigation
 app.post('/start-irrigation', (req, res) => {
     const { greenhouseId } = req.body;
 
@@ -79,7 +76,7 @@ app.post('/start-irrigation', (req, res) => {
     });
 });
 
-
+// Stop irrigation
 app.post('/stop-irrigation', (req, res) => {
     const { greenhouseId } = req.body;
 
@@ -94,18 +91,115 @@ app.post('/stop-irrigation', (req, res) => {
     });
 });
 
+// ----- SSE Streaming Routes -----
 
-app.get('/irrigation-status', (req, res) => {
-    irrigationClient.GetAllSoilMoisture({}, (error, soilResponse) => {
-        if (error) {
-            console.error('Error fetching irrigation status:', error);
-            return res.status(500).json({ error: "Unable to fetch irrigation data" });
-        }
-        res.json(soilResponse.greenhouses);
+// Soil moisture stream
+app.get('/soil-moisture-stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const interval = setInterval(() => {
+        irrigationClient.GetAllSoilMoisture({}, (error, soilResponse) => {
+            if (error) {
+                console.error('Soil moisture stream error:', error);
+                return;
+            }
+
+            soilResponse.greenhouses.forEach(g => {
+                res.write(`data: ${JSON.stringify(g)}\n\n`);
+            });
+        });
+    }, 5000);
+
+    req.on('close', () => {
+        clearInterval(interval);
+        res.end();
     });
 });
 
-// Start the Express server
+// Live robot status stream (non-interactive view only)
+app.get('/robot-status-stream', (req, res) => {
+    const { robotId } = req.query;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const call = robotClient.StreamRobotStatus({ robotId });
+
+    call.on('data', (robotStatus) => {
+        res.write(`data: ${JSON.stringify(robotStatus)}\n\n`);
+    });
+
+    call.on('error', (error) => {
+        console.error('Robot streaming error:', error);
+        res.end();
+    });
+
+    call.on('end', () => {
+        console.log('Robot streaming ended by server.');
+        res.end();
+    });
+
+    req.on('close', () => {
+        console.log('Client closed robot status stream');
+        call.cancel();
+    });
+});
+
+// Bidirectional control + status stream
+app.get('/robot-control-stream', (req, res) => {
+    const { robotId } = req.query;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const call = robotClient.RobotCommandStream();
+    activeRobotStreams[robotId] = call;
+
+    // Start with default "Resume"
+    call.write({ robotId, command: 'Resume' });
+
+    call.on('data', (robotStatus) => {
+        res.write(`data: ${JSON.stringify(robotStatus)}\n\n`);
+    });
+
+    call.on('error', (error) => {
+        console.error('Robot command stream error:', error);
+        res.end();
+    });
+
+    call.on('end', () => {
+        console.log('Robot command stream ended by server.');
+        res.end();
+    });
+
+    req.on('close', () => {
+        console.log(`Client closed command stream for ${robotId}`);
+        if (activeRobotStreams[robotId]) delete activeRobotStreams[robotId];
+        call.end();
+        res.end();
+    });
+});
+
+// Handle command sent from frontend
+app.post('/send-robot-command', (req, res) => {
+    const { robotId, command } = req.body;
+    const stream = activeRobotStreams[robotId];
+
+    if (stream) {
+        stream.write({ robotId, command });
+        console.log(`Forwarded command to ${robotId}: ${command}`);
+        res.sendStatus(200);
+    } else {
+        console.warn(`No active stream for ${robotId}`);
+        res.status(404).send('No active stream for this robot');
+    }
+});
+
+// ----- Start Server -----
 app.listen(PORT, () => {
     console.log(`GUI Server running at http://localhost:${PORT}`);
 });

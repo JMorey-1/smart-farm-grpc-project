@@ -3,12 +3,76 @@
 <head>
     <title>Smart Farm Dashboard</title>
     <style>
-        body { font-family: Arial; margin: 40px; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
-        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        h2 { margin-top: 40px; }
-        button { padding: 5px 10px; margin-right: 5px; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 40px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        button + button {
+            background-color: #dc3545;
+        }
+
+        button + button:hover {
+            background-color: #c82333;
+        }
+
+        h2 {
+            color: #0056b3;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            margin-bottom: 10px;
+            color: #343a40;
+        }
     </style>
 </head>
 <body>
@@ -37,60 +101,79 @@
     <!-- Irrigation Section -->
     <section>
         <h2>Irrigation</h2>
-        <% if (soilMoistureData.length > 0) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Greenhouse</th>
-                        <th>Soil Moisture (%)</th>
-                        <th>Irrigation Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="irrigation-table-body">
-                    <% soilMoistureData.forEach(greenhouse => { %>
-                        <tr>
-                            <td><%= greenhouse.name %></td>
-                            <td><%= greenhouse.soilMoisture.toFixed(1) %></td>
-                            <td><%= greenhouse.isIrrigating ? "Running" : "Stopped" %></td>
-                            <td>
-                                <button onclick="startIrrigation('<%= greenhouse.greenhouseId %>')">Start</button>
-                                <button onclick="stopIrrigation('<%= greenhouse.greenhouseId %>')">Stop</button>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } else { %>
-            <p>No irrigation data available</p>
-        <% } %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Greenhouse</th>
+                    <th>Soil Moisture (%)</th>
+                    <th>Irrigation Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="irrigation-table-body">
+                <!-- Filled by SSE stream -->
+            </tbody>
+        </table>
     </section>
 
-    <!-- Script for live irrigation updates -->
-    <script>
-        function fetchIrrigationStatus() {
-            fetch('/irrigation-status')
-                .then(response => response.json())
-                .then(greenhouses => {
-                    const tbody = document.querySelector('#irrigation-table-body');
-                    tbody.innerHTML = '';
+    <!-- Robot Section -->
+    <section>
+        <h2>Robot Status</h2>
+        <div style="display: flex; gap: 30px;">
+            <% ["Robot1", "Robot2", "Robot3"].forEach(robotId => { %>
+                <div>
+                    <h3><%= robotId %></h3>
+                    <table>
+                        <tr><th>Position</th><td id="<%= robotId %>-position">Loading...</td></tr>
+                        <tr><th>Task</th><td id="<%= robotId %>-task">Loading...</td></tr>
+                        <tr><th>Container</th><td id="<%= robotId %>-load">Loading...</td></tr>
+                        <tr><th>Battery</th><td id="<%= robotId %>-battery">Loading...</td></tr>
+                        <tr><th>Last Updated</th><td id="<%= robotId %>-timestamp">Loading...</td></tr>
+                    </table>
+                    <div>
+                        <button onclick="sendRobotCommand('<%= robotId %>', 'Pause')">Pause</button>
+                        <button onclick="sendRobotCommand('<%= robotId %>', 'Resume')">Resume</button>
+                        <button onclick="sendRobotCommand('<%= robotId %>', 'Return')">Return</button>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </section>
 
-                    greenhouses.forEach(g => {
-                        const row = `
-                            <tr>
-                                <td>${g.name}</td>
-                                <td>${g.soilMoisture.toFixed(1)}</td>
-                                <td>${g.isIrrigating ? "Running" : "Stopped"}</td>
-                                <td>
-                                    <button onclick="startIrrigation('${g.greenhouseId}')">Start</button>
-                                    <button onclick="stopIrrigation('${g.greenhouseId}')">Stop</button>
-                                </td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += row;
-                    });
-                })
-                .catch(err => console.error('Failed to fetch irrigation status:', err));
+    <script>
+        // -- Irrigation Streaming --
+        const irrigationData = {};
+        const irrigationEventSource = new EventSource('/soil-moisture-stream');
+
+        irrigationEventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            irrigationData[data.greenhouseId] = data;
+            renderIrrigationTable();
+        };
+
+        irrigationEventSource.onerror = (err) => {
+            console.error('Irrigation stream error:', err);
+            irrigationEventSource.close();
+        };
+
+        function renderIrrigationTable() {
+            const tbody = document.getElementById('irrigation-table-body');
+            tbody.innerHTML = '';
+
+            Object.values(irrigationData).forEach(g => {
+                const row = `
+                    <tr>
+                        <td>${g.name}</td>
+                        <td>${g.soilMoisture.toFixed(1)}</td>
+                        <td>${g.isIrrigating ? "Running" : "Stopped"}</td>
+                        <td>
+                            <button onclick="startIrrigation('${g.greenhouseId}')">Start</button>
+                            <button onclick="stopIrrigation('${g.greenhouseId}')">Stop</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
         }
 
         function startIrrigation(greenhouseId) {
@@ -98,10 +181,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
-            })
-            .then(response => response.text())
-            .then(() => fetchIrrigationStatus())
-            .catch(err => console.error('Failed to start irrigation:', err));
+            }).catch(err => console.error('Failed to start irrigation:', err));
         }
 
         function stopIrrigation(greenhouseId) {
@@ -109,14 +189,37 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `greenhouseId=${encodeURIComponent(greenhouseId)}`
-            })
-            .then(response => response.text())
-            .then(() => fetchIrrigationStatus())
-            .catch(err => console.error('Failed to stop irrigation:', err));
+            }).catch(err => console.error('Failed to stop irrigation:', err));
         }
 
-        // Auto-refresh every 5 seconds
-        setInterval(fetchIrrigationStatus, 5000);
+        // -- Robot Streaming & Command Control --
+        function startRobotStream(robotId) {
+            const eventSource = new EventSource(`/robot-control-stream?robotId=${robotId}`);
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                document.getElementById(`${robotId}-position`).textContent = data.position;
+                document.getElementById(`${robotId}-task`).textContent = data.currentTask;
+                document.getElementById(`${robotId}-load`).textContent = data.containerLoadPercent.toFixed(1) + "%";
+                document.getElementById(`${robotId}-battery`).textContent = data.batteryLevelPercent.toFixed(1) + "%";
+                document.getElementById(`${robotId}-timestamp`).textContent = new Date(data.timestamp).toLocaleTimeString();
+            };
+
+            eventSource.onerror = (err) => {
+                console.error(`Error in ${robotId} stream:`, err);
+                eventSource.close();
+            };
+        }
+
+        function sendRobotCommand(robotId, command) {
+            fetch('/send-robot-command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ robotId, command })
+            }).catch(err => console.error('Command failed:', err));
+        }
+
+        ["Robot1", "Robot2", "Robot3"].forEach(startRobotStream);
     </script>
 </body>
 </html>

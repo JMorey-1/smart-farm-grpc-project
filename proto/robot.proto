@@ -5,10 +5,13 @@ package robot;
 
 service RobotService {
   rpc StreamRobotStatus (RobotStatusRequest) returns (stream RobotStatusResponse);
+  
+  // Bidirectional stream for commands and status
+  rpc RobotCommandStream (stream RobotCommand) returns (stream RobotStatusResponse);
 }
 
 message RobotStatusRequest {
-  string robotId = 1; // Optional: specify which robot
+  string robotId = 1;
 }
 
 message RobotStatusResponse {
@@ -18,4 +21,10 @@ message RobotStatusResponse {
   float containerLoadPercent = 4;
   float batteryLevelPercent = 5;
   string timestamp = 6;
+}
+
+// New message: Command sent from GUI
+message RobotCommand {
+  string robotId = 1;
+  string command = 2; // "Pause", "Resume", "Return", etc.
 }
