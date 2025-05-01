@@ -101,41 +101,4 @@ function getWaterUsage(greenhouseId) {
     });
 }
 
-// ------------------ Robot Service ------------------ //
 
-function streamRobotStatus(robotId) {
-    const call = robotClient.StreamRobotStatus({ robotId });
-
-    call.on('data', (response) => {
-        console.log('--- Robot Status Update ---');
-        console.log(`Robot ID: ${response.robotId}`);
-        console.log(`Position: ${response.position}`);
-        console.log(`Current Task: ${response.currentTask}`);
-        console.log(`Container Load: ${response.containerLoadPercent.toFixed(1)} %`);
-        console.log(`Battery Level: ${response.batteryLevelPercent.toFixed(1)} %`);
-        console.log(`Timestamp: ${new Date(response.timestamp).toLocaleString()}`);
-        console.log('----------------------------\n');
-    });
-
-    call.on('end', () => {
-        console.log('Robot status stream ended.');
-    });
-
-    call.on('error', (error) => {
-        console.error('StreamRobotStatus error:', error);
-    });
-}
-
-// ------------------ Example Calls ------------------ //
-
-// Test Weather
-getWeather();
-
-// Test Irrigation
-getSoilMoisture('Greenhouse 1');
-startIrrigation('Greenhouse 1');
-stopIrrigation('Greenhouse 1');
-getWaterUsage('Greenhouse 1');
-
-// Test Robot Streaming
-streamRobotStatus('Robot1');

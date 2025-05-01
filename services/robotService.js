@@ -1,13 +1,27 @@
+// Robot service logic
+
+const VALID_API_KEY = "farmkey123";
+
+// Check the API key from metadata
+function isAuthorized(call) {
+  const key = call.metadata.get('api-key')[0];
+  return key === VALID_API_KEY;
+}
+
+// List of robot tasks in order
 const taskSequence = ["Waiting", "Moving", "Picking", "Returning", "Charging"];
+
+// Greenhouses the robots can visit
 const greenhouses = ["Greenhouse 1", "Greenhouse 2", "Greenhouse 3"];
 
-// Global robot state
+// Create initial state for each robot
 const robotStates = {
     "Robot1": createInitialRobotState("Robot1"),
     "Robot2": createInitialRobotState("Robot2"),
     "Robot3": createInitialRobotState("Robot3")
 };
 
+// Function to set up the initial state for a robot
 function createInitialRobotState(id) {
     return {
         robotId: id,
@@ -23,16 +37,26 @@ function createInitialRobotState(id) {
     };
 }
 
+// Randomly pick a greenhouse for the robot to go to
 function pickRandomGreenhouse() {
     return greenhouses[Math.floor(Math.random() * greenhouses.length)];
 }
 
+// Handles the bidirectional gRPC stream for robot commands and status updates
 function RobotCommandStream(stream) {
+    // ✅ Reject the stream if not authorized
+    if (!isAuthorized(stream)) {
+        stream.end();
+        return;
+    }
+
     let robotId = null;
     let interval = null;
 
     stream.on('data', (commandMsg) => {
         const { robotId: id, command } = commandMsg;
+
+        // Ignore commands for unknown robots
         if (!robotStates[id]) {
             stream.write({
                 robotId: id,
@@ -48,6 +72,7 @@ function RobotCommandStream(stream) {
         const robot = robotStates[id];
         robotId = id;
 
+        // Handle robot commands
         switch (command.toLowerCase()) {
             case "start":
                 robot.active = true;
@@ -76,10 +101,10 @@ function RobotCommandStream(stream) {
                 break;
         }
 
-        // Send status immediately after receiving a command
+        // Send current status back to client
         sendStatus(robot, stream);
 
-        // Start the status update loop
+        // Start periodic updates if not already running
         if (!interval) {
             interval = setInterval(() => updateAndSendStatus(robot, stream), 5000);
         }
@@ -97,6 +122,7 @@ function RobotCommandStream(stream) {
     });
 }
 
+// Updates the robot’s state and sends it to the client
 function updateAndSendStatus(robot, stream) {
     if (!robot.active || robot.paused) {
         sendStatus(robot, stream);
@@ -153,6 +179,7 @@ function updateAndSendStatus(robot, stream) {
     sendStatus(robot, stream);
 }
 
+// Send the current robot status to the client
 function sendStatus(robot, stream) {
     stream.write({
         robotId: robot.robotId,
@@ -164,6 +191,7 @@ function sendStatus(robot, stream) {
     });
 }
 
+// Export the robot stream handler and the state
 module.exports = {
     RobotCommandStream,
     robotStates

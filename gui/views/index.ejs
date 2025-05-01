@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Farm Dashboard</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <!-- Add Font Awesome for better icons -->
+    
+    <!-- Font Awesome for  icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -15,7 +16,8 @@
         </header>
 
         <main class="dashboard-grid">
-            <!-- Weather Card - Improved layout -->
+            
+            <!-- Weather Card -->
             <section class="card weather-card">
                 <div class="card-header">
                     <h2>Weather Conditions</h2>
@@ -69,7 +71,7 @@
                 </div>
             </section>
 
-            <!-- Irrigation Card - Improved structure -->
+            <!-- Irrigation Card -->
             <section class="card irrigation-card">
                 <div class="card-header">
                     <h2>Irrigation System</h2>
@@ -101,7 +103,7 @@
                 </div>
             </section>
 
-            <!-- Robot Section - Improved layout -->
+            <!-- Robot Card -->
             <section class="card robots-card">
                 <div class="card-header">
                     <h2>Farming Robots</h2>
@@ -175,7 +177,8 @@
         </footer>
     </div>
 
-    <!-- Modified JavaScript with improved UI interaction -->
+    <!-- JavaScript -->
+    
     <script>
         // --- Irrigation Stream ---
         const irrigationData = {};
@@ -186,15 +189,15 @@
             irrigationData[data.greenhouseId] = data;
             renderIrrigationTable();
             
-            // Remove placeholder after first data received
+            // Remove the placeholder after first data received
             document.querySelector('.placeholder-row')?.remove();
         };
 
         function renderIrrigationTable() {
             const tbody = document.getElementById('irrigation-table-body');
-            if (Object.keys(irrigationData).length === 0) return; // Don't clear if no data
+            if (Object.keys(irrigationData).length === 0) return; // Don't clear if there is no data
             
-            // Clear existing content except placeholder
+            // Clear existing content except the placeholder
             Array.from(tbody.querySelectorAll('tr:not(.placeholder-row)')).forEach(row => row.remove());
             
             Object.values(irrigationData).forEach(g => {
@@ -243,7 +246,7 @@
                 body: `greenhouseId=${encodeURIComponent(id)}`
             });
             
-            // Optimistic UI update
+            
             if (irrigationData[id]) {
                 irrigationData[id].isIrrigating = true;
                 renderIrrigationTable();
@@ -257,7 +260,7 @@
                 body: `greenhouseId=${encodeURIComponent(id)}`
             });
             
-            // Optimistic UI update
+    
             if (irrigationData[id]) {
                 irrigationData[id].isIrrigating = false;
                 renderIrrigationTable();

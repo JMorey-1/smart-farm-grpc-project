@@ -1,43 +1,45 @@
 // Weather service logic 
 
+const VALID_API_KEY = "farmkey123";
+
+// Check the API key from metadata
+function isAuthorized(call) {
+  const key = call.metadata.get('api-key')[0];
+  return key === VALID_API_KEY;
+}
+
 // Handles GetWeather gRPC requests
 function GetWeather(call, callback) {
-    
-    // Base weather data
+    if (!isAuthorized(call)) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: 'Unauthorized: Invalid API key'
+      });
+    }
+  
     const baseData = {
-        temperature: 11.0,
-        humidity: 55.0,
-        rainfall: 4.6
+      temperature: 11.0,
+      humidity: 55.0,
+      rainfall: 4.6
     };
-
-    // Function to create slight random variation (+/-1)
+  
     const variation = (base) => parseFloat((base + (Math.random() * 2 - 1)).toFixed(1));
-
-    // List of possible weather conditions
     const conditions = ["Sunny", "Cloudy", "Rainy", "Stormy"];
     const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
     const windspeed = parseFloat((Math.random() * 20).toFixed(1));
-
-    // Build the weather response
+  
     const weatherData = {
-        temperature: variation(baseData.temperature),
-        humidity: variation(baseData.humidity),
-        rainfall: variation(baseData.rainfall),
-        windspeed: windspeed,
-        condition: randomCondition,
-        reportTime: new Date().toISOString() // Current time in ISO format
+      temperature: variation(baseData.temperature),
+      humidity: variation(baseData.humidity),
+      rainfall: variation(baseData.rainfall),
+      windspeed: windspeed,
+      condition: randomCondition,
+      reportTime: new Date().toISOString(),
+      alert: variation(baseData.rainfall) > 5 ? "Heavy Rain Warning!" : ""
     };
-
-    // Add an alert if heavy rainfall detected
-    if (weatherData.rainfall > 5) {
-        weatherData.alert = "Heavy Rain Warning!";
-    } else {
-        weatherData.alert = "";
-    }
-
-    // Send the response back to the client
+  
     callback(null, weatherData);
-}
+  }
 
 // Export the service functions
 module.exports = {

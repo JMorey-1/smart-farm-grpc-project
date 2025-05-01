@@ -1,5 +1,17 @@
 // services/irrigationService.js
 
+const VALID_API_KEY = "farmkey123";
+
+// Helper for unary RPCs
+function isAuthorized(call, callback) {
+  const key = call.metadata.get('api-key')[0];
+  if (key !== VALID_API_KEY) {
+    callback({ code: 7, message: 'Unauthorized: Invalid API key' });
+    return false;
+  }
+  return true;
+}
+
 // Simulated Greenhouse Data
 const greenhouses = {
     "Greenhouse 1": { name: "Tomato House", moistureLevel: 42.5, litresUsed: 120.0, isIrrigating: false },
@@ -7,58 +19,63 @@ const greenhouses = {
     "Greenhouse 3": { name: "Herb Garden", moistureLevel: 55.0, litresUsed: 80.0, isIrrigating: false }
 };
 
-// Moisture simulation: every 5 seconds, update irrigating greenhouses
+// Moisture simulation: update irrigating greenhouses every 5 seconds
 setInterval(() => {
-    Object.keys(greenhouses).forEach(id => {
-        const greenhouse = greenhouses[id];
-        if (greenhouse.isIrrigating) {
-            greenhouse.moistureLevel = Math.min(100, greenhouse.moistureLevel + (Math.random() * 1.5 + 0.5)); // +0.5 to +2.0%
-            greenhouse.litresUsed += Math.random() * 5 + 2; // +2 to +7 litres
+    Object.values(greenhouses).forEach(g => {
+        if (g.isIrrigating) {
+            g.moistureLevel = Math.min(100, g.moistureLevel + (Math.random() * 1.5 + 0.5));
+            g.litresUsed += Math.random() * 5 + 2;
         }
     });
 }, 5000);
 
 // Unary: Get soil moisture for a single greenhouse
 function GetSoilMoisture(call, callback) {
-    const { greenhouseId } = call.request;
-    const greenhouse = greenhouses[greenhouseId];
+    if (!isAuthorized(call, callback)) return;
 
-    if (!greenhouse) {
-        return callback({
-            code: 5,
-            message: `Greenhouse ${greenhouseId} not found`
-        });
+    const { greenhouseId } = call.request;
+    const g = greenhouses[greenhouseId];
+
+    if (!g) {
+        return callback({ code: 5, message: `Greenhouse ${greenhouseId} not found` });
     }
 
-    callback(null, { moistureLevel: greenhouse.moistureLevel });
+    callback(null, { moistureLevel: g.moistureLevel });
 }
 
 // Unary: Get soil moisture for ALL greenhouses
 function GetAllSoilMoisture(call, callback) {
-    const allStatuses = Object.keys(greenhouses).map(id => ({
+    if (!isAuthorized(call, callback)) return;
+
+    const data = Object.entries(greenhouses).map(([id, g]) => ({
         greenhouseId: id,
-        name: greenhouses[id].name,
-        soilMoisture: greenhouses[id].moistureLevel,
-        isIrrigating: greenhouses[id].isIrrigating
+        name: g.name,
+        soilMoisture: g.moistureLevel,
+        isIrrigating: g.isIrrigating
     }));
 
-    callback(null, { greenhouses: allStatuses });
+    callback(null, { greenhouses: data });
 }
 
-// 🔁 Server Streaming: Stream live soil moisture data
+// Server Streaming: Stream live soil moisture data
 function StreamSoilMoisture(call) {
+    const key = call.metadata.get('api-key')[0];
+    if (key !== VALID_API_KEY) {
+        call.destroy();
+        return;
+    }
+
     const interval = setInterval(() => {
         Object.entries(greenhouses).forEach(([id, g]) => {
-            const status = {
+            call.write({
                 greenhouseId: id,
                 name: g.name,
                 soilMoisture: parseFloat(g.moistureLevel.toFixed(1)),
                 isIrrigating: g.isIrrigating,
                 timestamp: new Date().toISOString()
-            };
-            call.write(status);
+            });
         });
-    }, 5000); // Stream every 5 seconds
+    }, 5000);
 
     call.on('cancelled', () => clearInterval(interval));
     call.on('end', () => {
@@ -69,73 +86,59 @@ function StreamSoilMoisture(call) {
 
 // Unary: Start irrigation
 function StartIrrigation(call, callback) {
+    if (!isAuthorized(call, callback)) return;
+
     const { greenhouseId } = call.request;
-    const greenhouse = greenhouses[greenhouseId];
+    const g = greenhouses[greenhouseId];
 
-    if (!greenhouse) {
-        return callback({
-            code: 5,
-            message: `Greenhouse ${greenhouseId} not found`
-        });
-    }
+    if (!g) return callback({ code: 5, message: `Greenhouse ${greenhouseId} not found` });
+    if (g.isIrrigating) return callback(null, { status: "Irrigation already running" });
 
-    if (greenhouse.isIrrigating) {
-        return callback(null, { status: "Irrigation already running" });
-    }
-
-    greenhouse.isIrrigating = true;
-
-    callback(null, { status: `Irrigation started for ${greenhouse.name}` });
+    g.isIrrigating = true;
+    callback(null, { status: `Irrigation started for ${g.name}` });
 }
 
 // Unary: Stop irrigation
 function StopIrrigation(call, callback) {
+    if (!isAuthorized(call, callback)) return;
+
     const { greenhouseId } = call.request;
-    const greenhouse = greenhouses[greenhouseId];
+    const g = greenhouses[greenhouseId];
 
-    if (!greenhouse) {
-        return callback({
-            code: 5,
-            message: `Greenhouse ${greenhouseId} not found`
-        });
-    }
+    if (!g) return callback({ code: 5, message: `Greenhouse ${greenhouseId} not found` });
+    if (!g.isIrrigating) return callback(null, { status: "Irrigation already stopped" });
 
-    if (!greenhouse.isIrrigating) {
-        return callback(null, { status: "Irrigation already stopped" });
-    }
-
-    greenhouse.isIrrigating = false;
-
-    callback(null, { status: `Irrigation stopped for ${greenhouse.name}` });
+    g.isIrrigating = false;
+    callback(null, { status: `Irrigation stopped for ${g.name}` });
 }
 
 // Unary: Get water usage
 function GetWaterUsage(call, callback) {
+    if (!isAuthorized(call, callback)) return;
+
     const { greenhouseId } = call.request;
-    const greenhouse = greenhouses[greenhouseId];
+    const g = greenhouses[greenhouseId];
 
-    if (!greenhouse) {
-        return callback({
-            code: 5,
-            message: `Greenhouse ${greenhouseId} not found`
-        });
-    }
-
-    callback(null, { litresUsed: greenhouse.litresUsed });
+    if (!g) return callback({ code: 5, message: `Greenhouse ${greenhouseId} not found` });
+    callback(null, { litresUsed: g.litresUsed });
 }
 
 // Client Streaming: Activate irrigation for multiple greenhouses
 function ActivateIrrigation(call, callback) {
+    const key = call.metadata.get('api-key')[0];
+    if (key !== VALID_API_KEY) {
+        call.destroy();
+        return;
+    }
+
     let activated = [];
     let totalWaterProjected = 0;
 
     call.on('data', (command) => {
-        const { greenhouseId } = command;
-        const greenhouse = greenhouses[greenhouseId];
-
-        if (greenhouse && !greenhouse.isIrrigating) {
-            greenhouse.isIrrigating = true;
-            activated.push(greenhouseId);
+        const g = greenhouses[command.greenhouseId];
+        if (g && !g.isIrrigating) {
+            g.isIrrigating = true;
+            activated.push(command.greenhouseId);
             totalWaterProjected += 20.0;
         }
     });
