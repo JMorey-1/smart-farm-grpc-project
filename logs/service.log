@@ -1,0 +1,203 @@
+[2025-05-07T21:51:11.944Z] StreamSoilMoisture started
+[2025-05-07T21:51:11.961Z] RobotCommandStream started
+[2025-05-07T21:51:13.305Z] GetWeather called by client
+[2025-05-07T21:51:13.312Z] GetAllSoilMoisture called
+[2025-05-07T21:51:13.345Z] RobotCommandStream ended for null
+[2025-05-07T21:51:13.354Z] StreamSoilMoisture cancelled by client
+[2025-05-07T21:51:13.366Z] StreamSoilMoisture started
+[2025-05-07T21:51:13.369Z] RobotCommandStream started
+[2025-05-07T21:51:13.369Z] RobotCommandStream started
+[2025-05-07T21:51:13.370Z] RobotCommandStream started
+[2025-05-07T21:56:04.008Z] RobotCommandStream started
+[2025-05-07T21:56:04.010Z] RobotCommandStream started
+[2025-05-07T21:56:04.828Z] StreamSoilMoisture started
+[2025-05-07T21:56:05.750Z] GetWeather called by client
+[2025-05-07T21:56:05.757Z] GetAllSoilMoisture called
+[2025-05-07T21:56:05.788Z] RobotCommandStream ended for null
+[2025-05-07T21:56:05.792Z] StreamSoilMoisture cancelled by client
+[2025-05-07T21:56:05.792Z] RobotCommandStream ended for null
+[2025-05-07T21:56:05.808Z] StreamSoilMoisture started
+[2025-05-07T21:56:05.811Z] RobotCommandStream started
+[2025-05-07T21:56:05.811Z] RobotCommandStream started
+[2025-05-07T21:56:05.812Z] RobotCommandStream started
+[2025-05-07T22:00:12.567Z] StreamSoilMoisture started
+[2025-05-07T22:00:13.647Z] RobotCommandStream started
+[2025-05-07T22:00:14.998Z] RobotCommandStream started
+[2025-05-07T22:00:14.999Z] RobotCommandStream started
+[2025-05-07T22:00:16.027Z] GetWeather called by client
+[2025-05-07T22:00:16.034Z] GetAllSoilMoisture called
+[2025-05-07T22:00:16.066Z] RobotCommandStream ended for null
+[2025-05-07T22:00:16.070Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:00:16.071Z] RobotCommandStream ended for null
+[2025-05-07T22:00:16.071Z] RobotCommandStream ended for null
+[2025-05-07T22:00:16.089Z] RobotCommandStream started
+[2025-05-07T22:00:16.090Z] RobotCommandStream started
+[2025-05-07T22:00:16.090Z] StreamSoilMoisture started
+[2025-05-07T22:00:16.091Z] RobotCommandStream started
+[2025-05-07T22:01:11.187Z] GetWeather called by client
+[2025-05-07T22:01:11.198Z] GetAllSoilMoisture called
+[2025-05-07T22:01:11.242Z] StreamSoilMoisture started
+[2025-05-07T22:01:11.247Z] RobotCommandStream started
+[2025-05-07T22:01:11.249Z] RobotCommandStream started
+[2025-05-07T22:01:11.248Z] RobotCommandStream started
+[2025-05-07T22:01:35.545Z] GetWeather called by client
+[2025-05-07T22:01:35.547Z] GetAllSoilMoisture called
+[2025-05-07T22:01:35.555Z] RobotCommandStream ended for null
+[2025-05-07T22:01:35.557Z] RobotCommandStream ended for null
+[2025-05-07T22:01:35.557Z] RobotCommandStream ended for null
+[2025-05-07T22:01:35.562Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:01:35.574Z] StreamSoilMoisture started
+[2025-05-07T22:01:35.577Z] RobotCommandStream started
+[2025-05-07T22:01:35.577Z] RobotCommandStream started
+[2025-05-07T22:01:35.578Z] RobotCommandStream started
+[2025-05-07T22:05:09.970Z] Irrigation started for Greenhouse 3
+[2025-05-07T22:05:11.791Z] Irrigation stopped for Greenhouse 3
+[2025-05-07T22:05:13.792Z] Irrigation started for Greenhouse 2
+[2025-05-07T22:05:14.879Z] Irrigation stopped for Greenhouse 2
+[2025-05-07T22:07:02.294Z] StreamSoilMoisture started
+[2025-05-07T22:07:04.545Z] RobotCommandStream started
+[2025-05-07T22:07:04.546Z] RobotCommandStream started
+[2025-05-07T22:07:04.547Z] RobotCommandStream started
+[2025-05-07T22:07:05.809Z] GetWeather called by client
+[2025-05-07T22:07:05.817Z] GetAllSoilMoisture called
+[2025-05-07T22:07:05.849Z] RobotCommandStream ended for null
+[2025-05-07T22:07:05.853Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:07:05.853Z] RobotCommandStream ended for null
+[2025-05-07T22:07:05.854Z] RobotCommandStream ended for null
+[2025-05-07T22:07:05.870Z] StreamSoilMoisture started
+[2025-05-07T22:07:05.873Z] RobotCommandStream started
+[2025-05-07T22:07:05.874Z] RobotCommandStream started
+[2025-05-07T22:07:05.875Z] RobotCommandStream started
+[2025-05-07T22:07:25.114Z] Irrigation started for Greenhouse 1
+[2025-05-07T22:07:48.473Z] Irrigation stopped for Greenhouse 1
+[2025-05-07T22:11:06.003Z] RobotCommandStream started
+[2025-05-07T22:11:06.001Z] RobotCommandStream started
+[2025-05-07T22:11:07.348Z] StreamSoilMoisture started
+[2025-05-07T22:11:07.369Z] GetWeather called by client
+[2025-05-07T22:11:07.378Z] GetAllSoilMoisture called
+[2025-05-07T22:11:07.412Z] RobotCommandStream ended for null
+[2025-05-07T22:11:07.415Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:11:07.416Z] RobotCommandStream ended for null
+[2025-05-07T22:11:07.428Z] RobotCommandStream started
+[2025-05-07T22:11:07.429Z] RobotCommandStream started
+[2025-05-07T22:11:07.430Z] RobotCommandStream started
+[2025-05-07T22:11:07.430Z] StreamSoilMoisture started
+[2025-05-07T22:13:48.406Z] StreamSoilMoisture started
+[2025-05-07T22:13:50.070Z] GetWeather called by client
+[2025-05-07T22:13:50.077Z] GetAllSoilMoisture called
+[2025-05-07T22:13:50.112Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:13:50.133Z] StreamSoilMoisture started
+[2025-05-07T22:13:50.137Z] RobotCommandStream started
+[2025-05-07T22:13:50.137Z] RobotCommandStream started
+[2025-05-07T22:13:50.138Z] RobotCommandStream started
+[2025-05-07T22:16:00.345Z] StreamSoilMoisture started
+[2025-05-07T22:16:02.318Z] RobotCommandStream started
+[2025-05-07T22:16:02.576Z] GetWeather called by client
+[2025-05-07T22:16:02.584Z] GetAllSoilMoisture called
+[2025-05-07T22:16:02.618Z] RobotCommandStream ended for null
+[2025-05-07T22:16:02.621Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:16:02.638Z] RobotCommandStream started
+[2025-05-07T22:16:02.639Z] RobotCommandStream started
+[2025-05-07T22:16:02.640Z] RobotCommandStream started
+[2025-05-07T22:16:02.640Z] StreamSoilMoisture started
+[2025-05-07T22:16:42.179Z] RobotCommandStream started
+[2025-05-07T22:16:42.181Z] RobotCommandStream started
+[2025-05-07T22:16:44.394Z] GetWeather called by client
+[2025-05-07T22:16:44.404Z] GetAllSoilMoisture called
+[2025-05-07T22:16:44.437Z] RobotCommandStream ended for null
+[2025-05-07T22:16:44.440Z] RobotCommandStream ended for null
+[2025-05-07T22:16:44.460Z] StreamSoilMoisture started
+[2025-05-07T22:16:44.463Z] RobotCommandStream started
+[2025-05-07T22:16:44.464Z] RobotCommandStream started
+[2025-05-07T22:16:44.464Z] RobotCommandStream started
+[2025-05-07T22:16:57.208Z] Irrigation started for Greenhouse 1
+[2025-05-07T22:17:12.071Z] Irrigation stopped for Greenhouse 1
+[2025-05-07T22:17:38.080Z] GetWeather called by client
+[2025-05-07T22:17:38.090Z] GetAllSoilMoisture called
+[2025-05-07T22:17:38.147Z] StreamSoilMoisture started
+[2025-05-07T22:17:38.152Z] RobotCommandStream started
+[2025-05-07T22:17:38.153Z] RobotCommandStream started
+[2025-05-07T22:17:38.154Z] RobotCommandStream started
+[2025-05-07T22:18:20.033Z] RobotCommandStream started
+[2025-05-07T22:18:20.036Z] RobotCommandStream started
+[2025-05-07T22:18:21.417Z] GetWeather called by client
+[2025-05-07T22:18:21.425Z] GetAllSoilMoisture called
+[2025-05-07T22:18:21.458Z] RobotCommandStream ended for null
+[2025-05-07T22:18:21.458Z] RobotCommandStream ended for null
+[2025-05-07T22:18:21.475Z] StreamSoilMoisture started
+[2025-05-07T22:18:21.477Z] RobotCommandStream started
+[2025-05-07T22:18:21.478Z] RobotCommandStream started
+[2025-05-07T22:18:21.478Z] RobotCommandStream started
+[2025-05-07T22:20:44.657Z] RobotCommandStream started
+[2025-05-07T22:20:44.654Z] RobotCommandStream started
+[2025-05-07T22:20:44.657Z] RobotCommandStream started
+[2025-05-07T22:20:47.215Z] StreamSoilMoisture started
+[2025-05-07T22:20:47.992Z] GetWeather called by client
+[2025-05-07T22:20:48.000Z] GetAllSoilMoisture called
+[2025-05-07T22:20:48.032Z] RobotCommandStream ended for null
+[2025-05-07T22:20:48.036Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:20:48.036Z] RobotCommandStream ended for null
+[2025-05-07T22:20:48.037Z] RobotCommandStream ended for null
+[2025-05-07T22:20:48.055Z] StreamSoilMoisture started
+[2025-05-07T22:20:48.059Z] RobotCommandStream started
+[2025-05-07T22:20:48.060Z] RobotCommandStream started
+[2025-05-07T22:20:48.060Z] RobotCommandStream started
+[2025-05-07T22:23:11.496Z] RobotCommandStream started
+[2025-05-07T22:23:11.498Z] RobotCommandStream started
+[2025-05-07T22:23:12.780Z] StreamSoilMoisture started
+[2025-05-07T22:23:13.644Z] GetWeather called by client
+[2025-05-07T22:23:13.653Z] GetAllSoilMoisture called
+[2025-05-07T22:23:13.685Z] RobotCommandStream ended for null
+[2025-05-07T22:23:13.689Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:23:13.690Z] RobotCommandStream ended for null
+[2025-05-07T22:23:13.705Z] StreamSoilMoisture started
+[2025-05-07T22:23:13.708Z] RobotCommandStream started
+[2025-05-07T22:23:13.708Z] RobotCommandStream started
+[2025-05-07T22:23:13.716Z] RobotCommandStream started
+[2025-05-07T22:24:21.246Z] StreamSoilMoisture started
+[2025-05-07T22:24:21.367Z] GetWeather called by client
+[2025-05-07T22:24:21.375Z] GetAllSoilMoisture called
+[2025-05-07T22:24:21.410Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:24:21.425Z] StreamSoilMoisture started
+[2025-05-07T22:24:21.428Z] RobotCommandStream started
+[2025-05-07T22:24:21.430Z] RobotCommandStream started
+[2025-05-07T22:24:21.429Z] RobotCommandStream started
+[2025-05-07T22:25:59.761Z] RobotCommandStream started
+[2025-05-07T22:25:59.959Z] RobotCommandStream started
+[2025-05-07T22:25:59.960Z] RobotCommandStream started
+[2025-05-07T22:26:02.463Z] StreamSoilMoisture started
+[2025-05-07T22:26:02.731Z] GetWeather called by client
+[2025-05-07T22:26:02.738Z] GetAllSoilMoisture called
+[2025-05-07T22:26:02.773Z] RobotCommandStream ended for null
+[2025-05-07T22:26:02.778Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:26:02.778Z] RobotCommandStream ended for null
+[2025-05-07T22:26:02.779Z] RobotCommandStream ended for null
+[2025-05-07T22:26:02.794Z] StreamSoilMoisture started
+[2025-05-07T22:26:02.797Z] RobotCommandStream started
+[2025-05-07T22:26:02.798Z] RobotCommandStream started
+[2025-05-07T22:26:02.798Z] RobotCommandStream started
+[2025-05-07T22:29:55.329Z] StreamSoilMoisture cancelled by client
+[2025-05-07T22:29:55.331Z] RobotCommandStream ended for null
+[2025-05-07T22:29:55.331Z] RobotCommandStream ended for null
+[2025-05-07T22:29:55.334Z] RobotCommandStream ended for null
+[2025-05-07T22:30:00.343Z] RobotCommandStream started
+[2025-05-07T22:30:00.343Z] RobotCommandStream started
+[2025-05-07T22:30:00.345Z] RobotCommandStream started
+[2025-05-07T22:30:09.741Z] RobotCommandStream ended for null
+[2025-05-07T22:30:09.745Z] RobotCommandStream ended for null
+[2025-05-07T22:30:09.746Z] RobotCommandStream ended for null
+[2025-05-07T22:30:14.750Z] RobotCommandStream started
+[2025-05-07T22:30:14.751Z] RobotCommandStream started
+[2025-05-07T22:30:14.753Z] RobotCommandStream started
+[2025-05-07T22:30:41.413Z] RobotCommandStream ended for null
+[2025-05-07T22:30:41.417Z] RobotCommandStream ended for null
+[2025-05-07T22:30:41.417Z] RobotCommandStream ended for null
+[2025-05-07T22:30:46.417Z] RobotCommandStream started
+[2025-05-07T22:30:46.417Z] RobotCommandStream started
+[2025-05-07T22:30:46.418Z] RobotCommandStream started
+[2025-05-07T22:30:48.067Z] RobotCommandStream ended for null
+[2025-05-07T22:30:48.070Z] RobotCommandStream ended for null
+[2025-05-07T22:30:48.071Z] RobotCommandStream ended for null
+[2025-05-07T22:30:53.082Z] RobotCommandStream started
+[2025-05-07T22:30:53.083Z] RobotCommandStream started
+[2025-05-07T22:30:53.084Z] RobotCommandStream started

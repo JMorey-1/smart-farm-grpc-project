@@ -12,7 +12,7 @@ const registry = require('./serviceRegistry.json');
 const app = express();
 const PORT = 3000;
 
-// ✅ API Key metadata for secured services
+// API Key metadata for secured services
 const apiMetadata = new grpc.Metadata();
 apiMetadata.add('api-key', 'farmkey123');
 
@@ -86,23 +86,31 @@ app.post('/stop-irrigation', (req, res) => {
   });
 });
 
-// Stream live soil moisture updates using SSE
+// Stream live soil moisture updates 
 app.get('/soil-moisture-stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const interval = setInterval(() => {
-    irrigationClient.GetAllSoilMoisture({}, apiMetadata, (err, soilRes) => {
-      if (err) return;
-      soilRes.greenhouses.forEach(g => {
-        res.write(`data: ${JSON.stringify(g)}\n\n`);
-      });
-    });
-  }, 5000);
+  const stream = irrigationClient.StreamSoilMoisture({}, apiMetadata);
+
+  stream.on('data', (update) => {
+    // Send each soil moisture update to the browser
+    res.write(`data: ${JSON.stringify(update)}\n\n`);
+  });
+
+  stream.on('error', (err) => {
+    console.error("Soil moisture stream error:", err.message);
+    res.end();
+  });
+
+  stream.on('end', () => {
+    console.log("Soil moisture stream ended");
+    res.end();
+  });
 
   req.on('close', () => {
-    clearInterval(interval);
+    stream.cancel(); 
     res.end();
   });
 });
@@ -115,7 +123,7 @@ app.get('/robot-control-stream', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  // ✅ Include metadata when creating the stream
+  // Include metadata when creating the stream
   const stream = robotClient.RobotCommandStream(apiMetadata);
   activeRobotStreams[robotId] = stream;
 

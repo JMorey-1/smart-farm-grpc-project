@@ -20,7 +20,7 @@
             <!-- Weather Card -->
             <section class="card weather-card">
                 <div class="card-header">
-                    <h2>Weather Conditions</h2>
+                    <h2>Current Weather Conditions</h2>
                 </div>
                 <div class="card-body">
                     <% if (weatherData) { %>
@@ -52,7 +52,7 @@
                             </div>
                             <div class="weather-item">
                                 <i class="fas fa-clock"></i>
-                                <span class="weather-label">Updated</span>
+                                <span class="weather-label">Last Updated</span>
                                 <span class="weather-value"><%= weatherData.reportTimeFormatted %></span>
                             </div>
                         </div>
@@ -194,50 +194,50 @@
         };
 
         function renderIrrigationTable() {
-            const tbody = document.getElementById('irrigation-table-body');
-            if (Object.keys(irrigationData).length === 0) return; // Don't clear if there is no data
-            
-            // Clear existing content except the placeholder
-            Array.from(tbody.querySelectorAll('tr:not(.placeholder-row)')).forEach(row => row.remove());
-            
-            Object.values(irrigationData).forEach(g => {
-                const moistureClass = g.soilMoisture < 30 ? 'low-moisture' : 
-                                     g.soilMoisture > 70 ? 'high-moisture' : 'normal-moisture';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div class="greenhouse-name">
-                            <i class="fas fa-seedling"></i>
-                            <span>${g.name}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="moisture-indicator ${moistureClass}">
-                            <div class="moisture-bar" style="width: ${g.soilMoisture}%"></div>
-                            <span>${g.soilMoisture.toFixed(1)}%</span>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="status-badge ${g.isIrrigating ? 'running' : 'stopped'}">
-                            <i class="fas fa-${g.isIrrigating ? 'play-circle' : 'stop-circle'}"></i>
-                            ${g.isIrrigating ? 'Running' : 'Stopped'}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="button-group">
-                            <button class="btn-start" onclick="startIrrigation('${g.greenhouseId}')" ${g.isIrrigating ? 'disabled' : ''}>
-                                <i class="fas fa-play"></i> Start
-                            </button>
-                            <button class="btn-stop" onclick="stopIrrigation('${g.greenhouseId}')" ${!g.isIrrigating ? 'disabled' : ''}>
-                                <i class="fas fa-stop"></i> Stop
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+    const tbody = document.getElementById('irrigation-table-body');
+    if (Object.keys(irrigationData).length === 0) return; // Don't clear if there is no data
+    
+    // Clear existing content except the placeholder
+    Array.from(tbody.querySelectorAll('tr:not(.placeholder-row)')).forEach(row => row.remove());
+    
+    Object.values(irrigationData).forEach(g => {
+        const moistureClass = g.soilMoisture < 30 ? 'low-moisture' : 
+                             g.soilMoisture > 70 ? 'high-moisture' : 'normal-moisture';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="greenhouse-cell">
+                <div class="greenhouse-name">
+                    <i class="fas fa-seedling"></i>
+                    <span>${g.name}</span>
+                </div>
+            </td>
+            <td>
+                <div class="moisture-indicator ${moistureClass}">
+                    <div class="moisture-bar" style="width: ${g.soilMoisture}%"></div>
+                    <span>${g.soilMoisture.toFixed(1)}%</span>
+                </div>
+            </td>
+            <td>
+                <span class="status-badge ${g.isIrrigating ? 'running' : 'stopped'}">
+                    <i class="fas fa-${g.isIrrigating ? 'play-circle' : 'stop-circle'}"></i>
+                    ${g.isIrrigating ? 'Running' : 'Stopped'}
+                </span>
+            </td>
+            <td>
+                <div class="button-group">
+                    <button class="btn-start" onclick="startIrrigation('${g.greenhouseId}')" ${g.isIrrigating ? 'disabled' : ''}>
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button class="btn-stop" onclick="stopIrrigation('${g.greenhouseId}')" ${!g.isIrrigating ? 'disabled' : ''}>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
         function startIrrigation(id) {
             fetch('/start-irrigation', {
