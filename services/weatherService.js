@@ -3,7 +3,7 @@
 // Import my new log function
 const { log } = require('../logger'); 
 
-const VALID_API_KEY = "farmkey123";
+const VALID_API_KEY = process.env.WEATHER_API_KEY;
 
 // Check the API key from the metadata
 function isAuthorized(call) {

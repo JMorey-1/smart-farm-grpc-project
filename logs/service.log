@@ -345,3 +345,37 @@
 [2025-05-08T22:33:15.785Z] GetAllSoilMoisture called
 [2025-05-08T22:33:15.786Z] ActivateIrrigation stream started
 [2025-05-08T22:33:15.786Z] ActivateIrrigation completed – 0 greenhouses
+[2025-05-08T22:58:28.233Z] StreamSoilMoisture started
+[2025-05-08T22:58:29.850Z] RobotCommandStream started
+[2025-05-08T22:58:29.850Z] RobotCommandStream started
+[2025-05-08T22:58:30.673Z] RobotCommandStream started
+[2025-05-08T22:58:31.543Z] GetWeather called by client
+[2025-05-08T22:58:31.550Z] GetAllSoilMoisture called
+[2025-05-08T22:58:31.556Z] GetWaterUsage called for Greenhouse 1
+[2025-05-08T22:58:31.558Z] GetWaterUsage called for Greenhouse 2
+[2025-05-08T22:58:31.560Z] GetWaterUsage called for Greenhouse 3
+[2025-05-08T22:58:31.591Z] RobotCommandStream ended for null
+[2025-05-08T22:58:31.594Z] StreamSoilMoisture cancelled by client
+[2025-05-08T22:58:31.595Z] RobotCommandStream ended for null
+[2025-05-08T22:58:31.595Z] RobotCommandStream ended for null
+[2025-05-08T22:58:31.613Z] StreamSoilMoisture started
+[2025-05-08T22:58:31.616Z] RobotCommandStream started
+[2025-05-08T22:58:31.616Z] RobotCommandStream started
+[2025-05-08T22:58:31.617Z] RobotCommandStream started
+[2025-05-08T22:58:44.573Z] GetAllSoilMoisture called
+[2025-05-08T22:58:44.576Z] ActivateIrrigation stream started
+[2025-05-08T22:58:44.576Z] ActivateIrrigation: Greenhouse 1 activated
+[2025-05-08T22:58:44.577Z] ActivateIrrigation completed – 3 greenhouses
+[2025-05-08T22:58:44.577Z] ActivateIrrigation: Greenhouse 3 activated
+[2025-05-08T22:58:44.576Z] ActivateIrrigation: Greenhouse 2 activated
+[2025-05-08T22:58:50.624Z] Command received for Robot1: start
+[2025-05-08T22:58:51.269Z] Command received for Robot2: start
+[2025-05-08T22:58:52.333Z] Command received for Robot3: start
+[2025-05-08T22:59:01.846Z] Command received for Robot1: pause
+[2025-05-08T22:59:03.062Z] Command received for Robot2: pause
+[2025-05-08T22:59:03.614Z] Command received for Robot3: pause
+[2025-05-08T22:59:05.263Z] Irrigation stopped for Greenhouse 3
+[2025-05-08T22:59:05.760Z] Irrigation stopped for Greenhouse 2
+[2025-05-08T22:59:06.134Z] Irrigation stopped for Greenhouse 1
+[2025-05-08T22:59:42.954Z] Command received for Robot1: resume
+[2025-05-08T22:59:44.658Z] Command received for Robot1: pause

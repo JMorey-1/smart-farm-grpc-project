@@ -1,3 +1,4 @@
+require('dotenv').config();
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
@@ -37,5 +38,6 @@ server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (error, port)
         console.error('Server binding failed: ' + error);
         return;
     }
+    server.start(); 
     console.log('gRPC Server is running at ' + address);
 });

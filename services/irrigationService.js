@@ -2,7 +2,7 @@
 
 // Import my new log function
 const { log } = require('../logger'); 
-const VALID_API_KEY = "farmkey123";
+const VALID_API_KEY = process.env.IRRIGATION_API_KEY;
 
 // Helper for unary RPCs
 function isAuthorized(call, callback) {
