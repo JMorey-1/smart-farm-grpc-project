@@ -51,7 +51,7 @@ function pickRandomGreenhouse() {
 // Handles the bidirectional gRPC stream for robot commands and status updates
 function RobotCommandStream(stream) {
   if (!isAuthorized(stream)) {
-    stream.end();
+    stream.destroy();
     return;
   }
 

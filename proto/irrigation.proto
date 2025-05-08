@@ -3,7 +3,6 @@ syntax = "proto3";
 package irrigation;
 
 service IrrigationService {
-  rpc GetSoilMoisture (GreenhouseRequest) returns (SoilMoistureResponse);
   rpc GetAllSoilMoisture (Empty) returns (AllSoilMoistureResponse);
   rpc StartIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
   rpc StopIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
@@ -20,10 +19,6 @@ message Empty {}
 
 message GreenhouseRequest {
   string greenhouseId = 1;
-}
-
-message SoilMoistureResponse {
-  float moistureLevel = 1;
 }
 
 message IrrigationStatusResponse {
@@ -44,7 +39,8 @@ message GreenhouseStatus {
   string name = 2;
   float soilMoisture = 3;
   bool isIrrigating = 4;
-  string timestamp = 5; 
+  double litresUsed   = 5;
+  string timestamp = 6; 
 }
 
 message ActivateIrrigationResponse {

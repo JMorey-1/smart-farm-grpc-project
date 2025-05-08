@@ -73,7 +73,7 @@ main.dashboard-grid {
 
 /* Irrigation Card */
 .irrigation-card .table-responsive {
-    min-width: 700px;
+    max-width: 100%;
     overflow-x: auto;
 }
 
@@ -202,12 +202,12 @@ main.dashboard-grid {
 
 /* === Irrigation Card === */
 .irrigation-card {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .irrigation-card .data-table {
-    width: 100%;
-    table-layout: fixed; /* Fix table layout */
+    width: auto;
+    table-layout: auto;
 }
 
 .irrigation-card th,
@@ -321,6 +321,12 @@ main.dashboard-grid {
     white-space: nowrap;
 }
 
+.irrigation-card .irrigation-button-container {
+    text-align: center;
+    margin-top: 1.5rem;  /* space above the button */
+  }
+
+
 /* === Badge Styles === */
 .status-badge {
     padding: 0.35rem 0.75rem;
@@ -353,7 +359,6 @@ main.dashboard-grid {
     display: flex;
     align-items: center;
 }
-
 
 .robot-table {
     margin: 0.75rem 0;

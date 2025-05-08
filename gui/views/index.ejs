@@ -83,6 +83,7 @@
                                 <tr>
                                     <th><i class="fas fa-home"></i> Greenhouse</th>
                                     <th><i class="fas fa-water"></i> Soil Moisture</th>
+                                    <th><i class="fas fa-tint"></i> Water Used</th>
                                     <th><i class="fas fa-info-circle"></i> Status</th>
                                     <th><i class="fas fa-cogs"></i> Controls</th>
                                 </tr>
@@ -100,6 +101,11 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="irrigation-button-container">
+                        <button id="activate-all-btn" class="btn-activate-all">
+                          Activate All Greenhouses
+                        </button>
+                      </div>
                 </div>
             </section>
 
@@ -218,6 +224,7 @@
                     <span>${g.soilMoisture.toFixed(1)}%</span>
                 </div>
             </td>
+            <td>${g.litresUsed.toFixed(1)} L</td>
             <td>
                 <span class="status-badge ${g.isIrrigating ? 'running' : 'stopped'}">
                     <i class="fas fa-${g.isIrrigating ? 'play-circle' : 'stop-circle'}"></i>
@@ -400,6 +407,45 @@
         // Check status every 30 seconds
         setInterval(checkSystemStatus, 30000);
         checkSystemStatus();
+
+
+    // ——— Activate All Greenhouses ———
+const activateAllBtn = document.getElementById('activate-all-btn');
+
+activateAllBtn.addEventListener('click', () => {
+  // Disable & show progress
+  activateAllBtn.disabled = true;
+  const originalText = activateAllBtn.textContent;
+  activateAllBtn.textContent = 'Activating…';
+
+  fetch('/activate-all', { method: 'POST' })
+    .then(response => response.json())
+    .then(({ activatedGreenhouses, totalWaterProjected }) => {
+      // Mark each as irrigating in our in-memory state
+      activatedGreenhouses.forEach(id => {
+        if (irrigationData[id]) {
+          irrigationData[id].isIrrigating = true;
+        }
+      });
+      renderIrrigationTable();
+
+      // Show a summary to the user
+      alert(
+        `Activated: ${activatedGreenhouses.join(', ')}\n` +
+        `Projected water usage: ${totalWaterProjected.toFixed(1)} L`
+      );
+    })
+    .catch(err => {
+      console.error('Activate all failed', err);
+      alert('Oops! Unable to activate irrigation for all greenhouses. Irrigation may already be running in one or more greenhouses.');
+    })
+    .finally(() => {
+      // Restore button state
+      activateAllBtn.disabled = false;
+      activateAllBtn.textContent = originalText;
+    });
+});
+
     </script>
 </body>
 </html>

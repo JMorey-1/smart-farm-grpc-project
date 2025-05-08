@@ -48,17 +48,37 @@ app.get('/', (req, res) => {
       weatherRes = null;
     }
 
-    irrigationClient.GetAllSoilMoisture({}, apiMetadata, (soilErr, soilRes) => {
+    irrigationClient.GetAllSoilMoisture({}, apiMetadata, async (soilErr, soilRes) => {
       if (soilErr) {
         console.error('Soil error:', soilErr);
         soilRes = null;
+      }
+
+      // Add water usage for each greenhouse
+      const soilMoistureData = [];
+
+      if (soilRes && soilRes.greenhouses) {
+        for (const g of soilRes.greenhouses) {
+          await new Promise(resolve => {
+            irrigationClient.GetWaterUsage({ greenhouseId: g.greenhouseId }, apiMetadata, (usageErr, usageRes) => {
+              if (usageErr) {
+                console.error(`Water usage error for ${g.greenhouseId}:`, usageErr.message);
+                g.litresUsed = null;
+              } else {
+                g.litresUsed = usageRes.litresUsed;
+              }
+              soilMoistureData.push(g);
+              resolve();
+            });
+          });
+        }
       }
 
       res.render('index', {
         weatherData: weatherRes
           ? { ...weatherRes, reportTimeFormatted: new Date(weatherRes.reportTime).toLocaleString() }
           : null,
-        soilMoistureData: soilRes ? soilRes.greenhouses : [],
+        soilMoistureData,
         robotData: []
       });
     });
@@ -83,6 +103,32 @@ app.post('/stop-irrigation', (req, res) => {
   irrigationClient.StopIrrigation({ greenhouseId }, apiMetadata, (err, response) => {
     if (err) return res.status(500).send("Failed to stop irrigation");
     res.send(response.status);
+  });
+});
+
+app.post('/activate-all', (req, res) => {
+  // Fetch all greenhouse IDs
+  irrigationClient.GetAllSoilMoisture({}, apiMetadata, (err, allRes) => {
+    if (err) {
+      console.error('GetAllSoilMoisture error:', err.message);
+      return res.status(500).send('Failed to retrieve greenhouses');
+    }
+
+    // Open the client‐stream for batch activation
+    const stream = irrigationClient.ActivateIrrigation(apiMetadata, (err, activationRes) => {
+      if (err) {
+        console.error('ActivateIrrigation error:', err.message);
+        return res.status(500).send('Activation failed');
+      }
+      // Send back the aggregated reply
+      res.json(activationRes);
+    });
+
+    // Write each greenhouseId into the stream, then close
+    allRes.greenhouses.forEach(g => {
+      stream.write({ greenhouseId: g.greenhouseId });
+    });
+    stream.end();
   });
 });
 

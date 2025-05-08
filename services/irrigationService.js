@@ -32,23 +32,8 @@ setInterval(() => {
     });
 }, 5000);
 
-// Unary: Get soil moisture for a single greenhouse
-function GetSoilMoisture(call, callback) {
-    if (!isAuthorized(call, callback)) return;
 
-    const { greenhouseId } = call.request;
-    const g = greenhouses[greenhouseId];
-
-    if (!g) {
-        log(`GetSoilMoisture failed – greenhouse ${greenhouseId} not found`);
-        return callback({ code: 5, message: `Greenhouse ${greenhouseId} not found` });
-    }
-
-    log(`GetSoilMoisture called for ${greenhouseId}`);
-    callback(null, { moistureLevel: g.moistureLevel });
-}
-
-// Unary: Get soil moisture for ALL greenhouses
+// Unary: Get soil moisture for greenhouses
 function GetAllSoilMoisture(call, callback) {
     if (!isAuthorized(call, callback)) return;
 
@@ -81,6 +66,7 @@ function StreamSoilMoisture(call) {
                 name: g.name,
                 soilMoisture: parseFloat(g.moistureLevel.toFixed(1)),
                 isIrrigating: g.isIrrigating,
+                litresUsed:   parseFloat(g.litresUsed.toFixed(1)),
                 timestamp: new Date().toISOString()
             });
         });
@@ -193,7 +179,6 @@ function ActivateIrrigation(call, callback) {
 
 // Export all handlers
 module.exports = {
-    GetSoilMoisture,
     GetAllSoilMoisture,
     StartIrrigation,
     StopIrrigation,
