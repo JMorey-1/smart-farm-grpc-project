@@ -1,5 +1,0 @@
-{
-    "WeatherService": "localhost:50051",
-    "IrrigationService": "localhost:50051",
-    "RobotService": "localhost:50051"
-  }

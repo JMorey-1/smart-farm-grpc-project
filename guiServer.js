@@ -12,7 +12,7 @@ const bodyParser  = require('body-parser');
 const { robotStates } = require('./services/robotService');
 
 // Load service addresses
-const registry = require('./serviceRegistry.json');
+const registry = require('./discovery/serviceRegistry.json');
 
 const app  = express();
 const PORT = 3000;

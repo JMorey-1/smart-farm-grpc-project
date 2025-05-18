@@ -1,30 +1,30 @@
-// Robot proto file 
+// robot.proto
+// Proto file for managing autonomous farming robots
+// Defines a bidirectional gRPC stream for sending commands and receiving live robot status updates
+
 syntax = "proto3";
 
 package robot;
 
 service RobotService {
-  rpc StreamRobotStatus (RobotStatusRequest) returns (stream RobotStatusResponse);
-  
-  // Bidirectional stream for commands and status
+  // Bidirectional stream:
+  // - Client sends RobotCommand messages (e.g. Start, Pause, Resume, Return)
+  // - Server responds with live RobotStatusResponse messages (position, task, battery, etc.)
   rpc RobotCommandStream (stream RobotCommand) returns (stream RobotStatusResponse);
 }
 
-message RobotStatusRequest {
-  string robotId = 1;
-}
-
-message RobotStatusResponse {
-  string robotId = 1;
-  string position = 2;
-  string currentTask = 3;
-  float containerLoadPercent = 4;
-  float batteryLevelPercent = 5;
-  string timestamp = 6;
-}
-
-// New message: Command sent from GUI
+// Message sent from the client to control robot behavior
 message RobotCommand {
-  string robotId = 1;
-  string command = 2; // "Pause", "Resume", "Return", etc.
+  string robotId = 1;      // ID of the robot to control
+  string command = 2;      // Command to send: "start", "pause", "resume", "return"
+}
+
+// Message streamed back from the server with robot status updates
+message RobotStatusResponse {
+  string robotId = 1;             // Unique identifier for the robot
+  string position = 2;            // Current position (e.g., "Warehouse", "Greenhouse 1")
+  string currentTask = 3;         // Task currently being performed (e.g., "Picking")
+  float containerLoadPercent = 4; // Harvest container fullness (0–100%)
+  float batteryLevelPercent = 5;  // Battery level (0–100%)
+  string timestamp = 6;           // Timestamp of the update (ISO 8601 format)
 }

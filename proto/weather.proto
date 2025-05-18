@@ -1,23 +1,29 @@
-// Weather proto file 
+// weather.proto
+// Proto definition for the Weather Monitoring Service in the Smart Farm System
+// Provides current weather data via unary gRPC calls for display and decision-making
 
 syntax = "proto3";
 
 package weather;
 
 service WeatherService {
+  // Unary: Retrieve the current weather report for a specific location
   rpc GetWeather (WeatherRequest) returns (WeatherResponse);
 }
 
+// Request message to fetch weather for a specific farm location.
+// For future expansion to support multi-site farms.
 message WeatherRequest {
-  string location = 1;
+  string location = 1; // Location name or label (e.g. "Farm", "North Field")
 }
 
+// Response message containing all relevant weather information
 message WeatherResponse {
-  float temperature = 1;
-  float humidity = 2;
-  float rainfall = 3;
-  string condition = 4;
-  string alert = 5;
-  string reportTime = 6;
-  float windspeed = 7;
+  float temperature = 1;   // Temperature in degrees Celsius
+  float humidity = 2;      // Humidity percentage
+  float rainfall = 3;      // Rainfall in millimeters
+  string condition = 4;    // Current condition (e.g. "Sunny", "Rainy")
+  string alert = 5;        // Optional weather alert (e.g. "Heavy Rain Warning!")
+  string reportTime = 6;   // ISO 8601 formatted timestamp
+  float windspeed = 7;     // Wind speed in km/h
 }

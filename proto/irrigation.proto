@@ -1,49 +1,66 @@
+// irrigation.proto
+// Proto definition for irrigation service in the Smart Farm System
+// Supports real-time monitoring, irrigation control, and batch activation using gRPC
+
 syntax = "proto3";
 
 package irrigation;
 
 service IrrigationService {
+  // Unary: Get soil moisture readings for all greenhouses
   rpc GetAllSoilMoisture (Empty) returns (AllSoilMoistureResponse);
+
+  // Unary: Start irrigation in a specific greenhouse
   rpc StartIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
+
+  // Unary: Stop irrigation in a specific greenhouse
   rpc StopIrrigation (GreenhouseRequest) returns (IrrigationStatusResponse);
+
+  // Unary: Retrieve total litres of water used in a greenhouse
   rpc GetWaterUsage (GreenhouseRequest) returns (WaterUsageResponse);
+
+  // Client Streaming: Activate irrigation for multiple greenhouses in a batch
   rpc ActivateIrrigation (stream GreenhouseRequest) returns (ActivateIrrigationResponse);
 
-  // Stream soil moisture updates continuously
+  // Server Streaming: Continuously stream live greenhouse data for dashboard display
   rpc StreamSoilMoisture (Empty) returns (stream GreenhouseStatus);
 }
 
-// Messages
-
+// Empty message for methods that require no input
 message Empty {}
 
+// Request specifying a single greenhouse by ID
 message GreenhouseRequest {
-  string greenhouseId = 1;
+  string greenhouseId = 1; // Unique ID of the greenhouse (e.g. "Greenhouse 1")
 }
 
+// Response indicating the result of an irrigation start/stop request
 message IrrigationStatusResponse {
-  string status = 1;
+  string status = 1; // Status message (e.g. "Irrigation started for Greenhouse 1")
 }
 
+// Response indicating total water usage in litres
 message WaterUsageResponse {
-  float litresUsed = 1;
+  float litresUsed = 1; // Total litres used in the greenhouse
 }
 
+// Response containing the full list of greenhouse statuses
 message AllSoilMoistureResponse {
-  repeated GreenhouseStatus greenhouses = 1;
+  repeated GreenhouseStatus greenhouses = 1; // Array of current greenhouse statuses
 }
 
-// Real-time GUI updates
+// Status message sent in real-time to update GUI displays
 message GreenhouseStatus {
-  string greenhouseId = 1;
-  string name = 2;
-  float soilMoisture = 3;
-  bool isIrrigating = 4;
-  double litresUsed   = 5;
-  string timestamp = 6; 
+  string greenhouseId = 1;  // Unique ID of the greenhouse
+  string name = 2;          // Display name of the greenhouse
+  float soilMoisture = 3;   // Current soil moisture percentage
+  bool isIrrigating = 4;    // Whether irrigation is currently active
+  double litresUsed = 5;    // Total litres of water used so far
+  string timestamp = 6;     // Timestamp of the reading (ISO 8601 format)
 }
 
+// Response to batch irrigation request
 message ActivateIrrigationResponse {
-  repeated string activatedGreenhouses = 1;
-  float totalWaterProjected = 2;
+  repeated string activatedGreenhouses = 1; // List of greenhouse IDs activated
+  float totalWaterProjected = 2;            // Estimated total water use in litres
 }
